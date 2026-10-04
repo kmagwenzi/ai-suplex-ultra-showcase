@@ -18,6 +18,7 @@ type Scene = keyof typeof SCENES;
 
 interface RunState {
   running: boolean;
+  graphName: string;
   sourceA: string;
   sourceB: string;
   scoreA: number | null;
@@ -29,6 +30,7 @@ interface RunState {
 
 const initialState: RunState = {
   running: false,
+  graphName: "",
   sourceA: "",
   sourceB: "",
   scoreA: null,
@@ -51,6 +53,8 @@ export default function Home() {
   function applyEvent(ev: StreamEvent) {
     setState((s) => {
       switch (ev.stage) {
+        case "scene":
+          return { ...s, graphName: String(ev.data.graph ?? ev.data.scene ?? "") };
         case "evidence_a":
           return { ...s, sourceA: String(ev.data.text ?? "") };
         case "evidence_b":
@@ -112,6 +116,11 @@ export default function Home() {
     }
   }
 
+  function switchScene(s: Scene) {
+    setScene(s);
+    setState(initialState);
+  }
+
   const scoreText =
     state.scoreA !== null && state.scoreB !== null
       ? state.scoreA + " → " + state.scoreB
@@ -133,7 +142,7 @@ export default function Home() {
           {(Object.keys(SCENES) as Scene[]).map((s) => (
             <button
               key={s}
-              onClick={() => setScene(s)}
+              onClick={() => switchScene(s)}
               disabled={state.running}
               className={
                 scene === s
@@ -146,7 +155,10 @@ export default function Home() {
           ))}
         </div>
 
-        <p className="text-center text-zinc-300 mb-6 italic">“{SCENES[scene].question}”</p>
+        <p className="text-center text-zinc-300 mb-1 italic">“{SCENES[scene].question}”</p>
+        <p className="text-center text-xs text-zinc-600 mb-6">
+          {state.graphName ? "graph: " + state.graphName : "two curated graphs · one engine"}
+        </p>
 
         <div className="text-center mb-8">
           <button
@@ -165,7 +177,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Card title="Source">
             {state.sourceA || state.sourceB ? (
-              <div className="space-y-2 text-xs text-zinc-400 font-mono">
+              <div className="space-y-2 text-xs text-zinc-400 font-mono break-words">
                 <div><span className="text-zinc-500">A · keyword:</span> {state.sourceA || "…"}</div>
                 <div><span className="text-amber-500">B · graph:</span> {state.sourceB || "…"}</div>
               </div>

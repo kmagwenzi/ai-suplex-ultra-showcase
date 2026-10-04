@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(JSON.stringify({ stage, data }) + "\n"));
       };
       try {
+        send("scene", { scene, graph: g.name, nodes: g.nodes.length, edges: g.edges.length });
         const result = await runGauntlet(query, g, model, { a: classicRetrieve, b: graphRetrieve }, send);
         send("done", { a: result.a.score, b: result.b.score });
       } catch (err) {
