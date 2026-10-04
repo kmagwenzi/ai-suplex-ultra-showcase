@@ -20,7 +20,9 @@ export function classicRetrieve(g: Graph, query: string): RetrievalResult {
   const hits: RetrievalHit[] = [];
   for (const node of g.nodes) {
     const text = [node.label, node.name, node.desc, node.industry, node.type]
-      .filter(Boolean).join(" ").toLowerCase();
+      .filter((v) => typeof v === "string")
+      .join(" ")
+      .toLowerCase();
     for (const t of toks) {
       if (text.includes(t)) {
         hits.push({ node, reason: "matched token '" + t + "'" });
@@ -33,7 +35,7 @@ export function classicRetrieve(g: Graph, query: string): RetrievalResult {
 
 export function graphRetrieve(g: Graph, query: string, maxHops = 3): RetrievalResult {
   const seedIds = new Set(classicRetrieve(g, query).hits.map((h) => h.node.id));
-  const idToNode = new Map(g.nodes.map((n) => [n.id, n]));
+  const idToNode = new Map(g.nodes.map((n) => [n.id, n] as const));
   const adj = new Map<string, { from: string; to: string; rel: string }[]>();
   for (const e of g.edges) {
     if (!adj.has(e.from)) adj.set(e.from, []);

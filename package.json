@@ -6,7 +6,8 @@
   "description": "AI-Suplex Ultra — the outreach showcase: Graph RAG + Gauntlet + Gen UI (Deep Ultra).",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22",
