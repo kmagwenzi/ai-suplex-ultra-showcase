@@ -18,6 +18,8 @@ export interface GauntletResult {
   lesson: string;
 }
 
+export type StageCallback = (stage: string, data: unknown) => void;
+
 function nodeName(g: Graph, id: string): string {
   const n = g.nodes.find((x) => x.id === id);
   return n ? String(n.name || n.label || n.id) : id;
@@ -37,15 +39,21 @@ export async function runGauntlet(
     a: (g: Graph, q: string) => RetrievalResult;
     b: (g: Graph, q: string) => RetrievalResult;
   },
+  onStage?: StageCallback,
 ): Promise<GauntletResult> {
   const evA = retrieve.a(g, query);
+  onStage?.("evidence_a", { text: evidenceSummary(g, evA) });
   const ansA = await model.generate("Question: " + query + "\nEvidence:\n" + evidenceSummary(g, evA) + "\nAnswer:");
   const resultA = scoreAnswer(ansA, g, query);
+  onStage?.("score_a", { score: resultA.score, answer: ansA });
   const lesson = distillLesson(resultA);
+  onStage?.("lesson", { text: lesson });
 
   const evB = retrieve.b(g, query);
+  onStage?.("evidence_b", { text: evidenceSummary(g, evB) });
   const ansB = await model.generate("Question: " + query + "\nEvidence:\n" + evidenceSummary(g, evB) + "\nLesson from previous attempt: " + lesson + "\nAnswer:");
   const resultB = scoreAnswer(ansB, g, query);
+  onStage?.("score_b", { score: resultB.score, answer: ansB });
 
   return {
     a: { answer: ansA, score: resultA.score, failures: resultA.failures },

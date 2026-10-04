@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import technical from "../data/technical-graph.json";
+import revenue from "../data/revenue-graph.json";
 
 export interface GraphNode {
   id: string;
@@ -69,8 +70,16 @@ export function parseGraph(json: string): Graph {
   return g;
 }
 
+const GRAPHS: Record<"technical" | "revenue", Graph> = {
+  technical: technical as Graph,
+  revenue: revenue as Graph,
+};
+
 export function loadGraph(name: "technical" | "revenue"): Graph {
-  const path = new URL("../data/" + name + "-graph.json", import.meta.url);
-  const raw = readFileSync(path, "utf8");
-  return parseGraph(raw);
+  const g = GRAPHS[name];
+  const errors = validateGraph(g);
+  if (errors.length > 0) {
+    throw new Error("Invalid graph " + name + ": " + errors.join("; "));
+  }
+  return g;
 }

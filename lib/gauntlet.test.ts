@@ -27,4 +27,14 @@ describe("gauntlet", () => {
     expect(s).toContain("Nodes:");
     expect(s).toContain("adjacent");
   });
+
+  it("emits stages via the onStage callback", async () => {
+    const g = loadGraph("revenue");
+    const stages: string[] = [];
+    await runGauntlet("which client should I upsell", g, fakeModel(), { a: classicRetrieve, b: graphRetrieve }, (stage) => stages.push(stage));
+    expect(stages).toContain("evidence_a");
+    expect(stages).toContain("score_a");
+    expect(stages).toContain("lesson");
+    expect(stages).toContain("score_b");
+  });
 });
