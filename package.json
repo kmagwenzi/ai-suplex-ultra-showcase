@@ -1,9 +1,9 @@
 {
-  "name": "ai-suplex-ultra-demo",
+  "name": "ai-suplex-ultra-showcase",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "AI-Suplex Ultra outreach demo — Graph RAG + Gauntlet + Gen UI (Deep Ultra).",
+  "description": "AI-Suplex Ultra — the outreach showcase: Graph RAG + Gauntlet + Gen UI (Deep Ultra).",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest"
