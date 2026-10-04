@@ -22,8 +22,17 @@ export function geminiModel(): Model {
         const body = await res.text();
         throw new Error("Gemini HTTP " + res.status + ": " + body.slice(0, 300));
       }
-      const json = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-      return json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      const json = (await res.json()) as {
+        candidates?: Array<{
+          finishReason?: string;
+          content?: { parts?: Array<{ text?: string }> };
+        }>;
+      };
+      const cand = json.candidates?.[0];
+      const parts = cand?.content?.parts ?? [];
+      const text = parts.map((p) => p.text ?? "").join("");
+      if (!text) return "(no text returned; finishReason=" + (cand?.finishReason ?? "unknown") + ")";
+      return text;
     },
   };
 }

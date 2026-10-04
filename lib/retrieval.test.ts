@@ -11,7 +11,14 @@ describe("classic retrieval (Stage A)", () => {
     expect(r.edges.length).toBe(0);
   });
 
-  it("finds mentions but not structure", () => {
+  it("matches a PLURAL query token to a singular node type (the real demo question)", () => {
+    const g = loadGraph("revenue");
+    const r = classicRetrieve(g, "Which of my clients is most likely to buy again, and what exactly should I pitch?");
+    expect(r.hits.length).toBeGreaterThan(0);
+    expect(r.hits.every((h) => h.node.type === "client")).toBe(true);
+  });
+
+  it("finds mentions but not structure — the upsell service is absent", () => {
     const g = loadGraph("revenue");
     const r = classicRetrieve(g, "which client should I upsell");
     expect(r.hits.map((h) => h.node.id)).not.toContain("delivery-tracking");

@@ -8,11 +8,19 @@ const STOP = new Set([
   "for", "from", "had", "has", "have", "how", "i", "in", "into", "is", "it",
   "its", "me", "most", "my", "not", "of", "on", "or", "our", "should", "so",
   "that", "the", "their", "them", "they", "this", "to", "up", "was", "we",
-  "were", "what", "which", "who", "will", "with", "would", "you", "your",
+  "were", "what", "which", "who", "will", "with", "would", "you", "your", "exactly",
 ]);
 
 function tokens(query: string): string[] {
   return query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 0 && !STOP.has(t));
+}
+
+function variants(t: string): string[] {
+  const set = new Set<string>([t]);
+  if (t.length > 3 && t.endsWith("es")) set.add(t.slice(0, -2));
+  if (t.length > 3 && t.endsWith("s")) set.add(t.slice(0, -1));
+  if (!t.endsWith("s")) set.add(t + "s");
+  return [...set];
 }
 
 export function classicRetrieve(g: Graph, query: string): RetrievalResult {
@@ -24,7 +32,7 @@ export function classicRetrieve(g: Graph, query: string): RetrievalResult {
       .join(" ")
       .toLowerCase();
     for (const t of toks) {
-      if (text.includes(t)) {
+      if (variants(t).some((v) => text.includes(v))) {
         hits.push({ node, reason: "matched token '" + t + "'" });
         break;
       }
