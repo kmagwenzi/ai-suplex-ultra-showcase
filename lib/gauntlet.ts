@@ -9,6 +9,7 @@ export interface Model {
 export interface StageResult {
   answer: string;
   score: number;
+  failures: string[];
 }
 
 export interface GauntletResult {
@@ -39,12 +40,16 @@ export async function runGauntlet(
 ): Promise<GauntletResult> {
   const evA = retrieve.a(g, query);
   const ansA = await model.generate("Question: " + query + "\nEvidence:\n" + evidenceSummary(g, evA) + "\nAnswer:");
-  const scoreA = scoreAnswer(ansA, g, query);
-  const lesson = distillLesson(scoreA);
+  const resultA = scoreAnswer(ansA, g, query);
+  const lesson = distillLesson(resultA);
 
   const evB = retrieve.b(g, query);
   const ansB = await model.generate("Question: " + query + "\nEvidence:\n" + evidenceSummary(g, evB) + "\nLesson from previous attempt: " + lesson + "\nAnswer:");
-  const scoreB = scoreAnswer(ansB, g, query);
+  const resultB = scoreAnswer(ansB, g, query);
 
-  return { a: { answer: ansA, score: scoreA }, b: { answer: ansB, score: scoreB }, lesson };
+  return {
+    a: { answer: ansA, score: resultA.score, failures: resultA.failures },
+    b: { answer: ansB, score: resultB.score, failures: resultB.failures },
+    lesson,
+  };
 }
