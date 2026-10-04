@@ -15,6 +15,12 @@ describe("rubric", () => {
     expect(sp.failures.length).toBeGreaterThan(sg.failures.length);
   });
 
+  it("does NOT credit a relationship the stage evidence never contained", () => {
+    const g = loadGraph("revenue");
+    const r = scoreAnswer("Acme bought via the delivered_to relationship.", g, "q", { evidenceRels: [] });
+    expect(r.breakdown.complete).toBe(0);
+  });
+
   it("does NOT award specific for a bare node id digit", () => {
     const g = loadGraph("revenue");
     const r = scoreAnswer("The project p4 uses Booking, and no price band exists.", g, "q");

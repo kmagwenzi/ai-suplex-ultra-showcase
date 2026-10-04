@@ -57,11 +57,13 @@ export async function runGauntlet(
   const evB = retrieve.b(g, query);
   const aIds = new Set(evA.hits.map((h) => h.node.id));
   const deepOnly = evB.hits.filter((h) => !aIds.has(h.node.id)).map((h) => h.node.id);
+  const relsA = evA.edges.map((e) => e.rel);
+  const relsB = evB.edges.map((e) => e.rel);
 
   onStage?.("evidence_a", { text: evidenceSummary(g, evA) });
   const promptA = INSTRUCTIONS + "\n\nQuestion: " + query + "\n\nEvidence:\n" + evidenceSummary(g, evA) + "\n\nAnswer:";
   const ansA = await model.generate(promptA);
-  const resultA = scoreAnswer(ansA, g, query, deepOnly);
+  const resultA = scoreAnswer(ansA, g, query, { deepOnlyIds: deepOnly, evidenceRels: relsA });
   onStage?.("score_a", { score: resultA.score, answer: ansA });
 
   const lesson = distillLesson(resultA);
@@ -75,7 +77,7 @@ export async function runGauntlet(
     "\n\nA previous attempt scored " + resultA.score + "/10. Address these failures: " + lesson +
     "\n\nAnswer:";
   const ansB = await model.generate(promptB);
-  const resultB = scoreAnswer(ansB, g, query, deepOnly);
+  const resultB = scoreAnswer(ansB, g, query, { deepOnlyIds: deepOnly, evidenceRels: relsB });
   onStage?.("score_b", { score: resultB.score, answer: ansB });
 
   return {

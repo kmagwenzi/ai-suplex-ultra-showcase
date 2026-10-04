@@ -13,6 +13,12 @@ export interface ScoreResult {
   failures: string[];
 }
 
+export interface ScoreOptions {
+  deepOnlyIds?: string[];
+  /** Edge relationship names present in the evidence THIS stage was given. */
+  evidenceRels?: string[];
+}
+
 function normalize(s: unknown): string {
   return String(s ?? "").toLowerCase();
 }
@@ -21,7 +27,7 @@ export function scoreAnswer(
   answer: string,
   g: Graph,
   _query: string,
-  deepOnlyIds?: string[],
+  opts?: ScoreOptions,
 ): ScoreResult {
   const lower = answer.toLowerCase();
   const names = g.nodes.map((n) => ({ id: n.id, name: normalize(n.name || n.label || n.id) }));
@@ -29,9 +35,9 @@ export function scoreAnswer(
   const mentioned = names.filter((x) => x.name.length > 0 && lower.includes(x.name));
   const grounded = mentioned.length >= 3 ? 3 : mentioned.length >= 1 ? 2 : 0;
 
-  const deepIds = new Set(deepOnlyIds ?? []);
-  const rels = g.edges.map((e) => e.rel);
-  const citesRelationship = rels.some((r) => r.length > 2 && lower.includes(r));
+  const deepIds = new Set(opts?.deepOnlyIds ?? []);
+  const evidenceRels = opts?.evidenceRels ?? g.edges.map((e) => e.rel);
+  const citesRelationship = evidenceRels.some((r) => r.length > 2 && lower.includes(r));
   const citesDeepNode = mentioned.some((x) => deepIds.has(x.id));
   const complete = citesRelationship || citesDeepNode ? 3 : 0;
 
