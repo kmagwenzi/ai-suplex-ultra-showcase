@@ -8,7 +8,13 @@ function fakeModel() {
     generate: async (prompt: string) => {
       const lines = prompt.split("\n");
       const nodesLine = lines.find((l) => l.startsWith("Nodes: "));
-      return nodesLine ? "Based on the evidence: " + nodesLine.slice(7) + "." : "No evidence.";
+      const edgesLine = lines.find((l) => l.startsWith("Edges: "));
+      return (
+        "Based on the evidence: " +
+        (nodesLine ? nodesLine.slice(7) : "") +
+        (edgesLine ? " via " + edgesLine.slice(7) : "") +
+        "."
+      );
     },
   };
 }

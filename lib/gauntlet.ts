@@ -21,18 +21,25 @@ export interface GauntletResult {
 export type StageCallback = (stage: string, data: unknown) => void;
 
 const INSTRUCTIONS =
-  "Answer strictly from the evidence graph below. Follow its relationship edges " +
-  "(for example uses_service, adjacent, powers, feeds, depends_on). Cite the exact entity names. " +
-  "Name one concrete next action. Include any price band you find. Two or three sentences maximum.";
+  "Answer strictly from the evidence graph below. The Edges list is the NEW information: follow it " +
+  "(for example uses_service, adjacent, powers, feeds, depends_on, delivered_to) and name the relationship " +
+  "you used. Cite exact entity names. Name one concrete next action. Include any price band shown next to a node. " +
+  "Two or three sentences maximum.";
 
-function nodeName(g: Graph, id: string): string {
+function nodeLabel(g: Graph, id: string): string {
   const n = g.nodes.find((x) => x.id === id);
-  return n ? String(n.name || n.label || n.id) : id;
+  if (!n) return id;
+  const parts: string[] = [String(n.name || n.label || n.id)];
+  if (n.industry) parts.push("[" + String(n.industry) + "]");
+  const band = n.price_band as number[] | undefined;
+  if (Array.isArray(band)) parts.push("($" + band.join("-") + ")");
+  if (typeof n.price === "number") parts.push("($" + n.price + ")");
+  return parts.join(" ");
 }
 
 export function evidenceSummary(g: Graph, r: RetrievalResult): string {
-  const names = r.hits.map((h) => nodeName(g, h.node.id)).join(", ");
-  const rels = r.edges.map((e) => nodeName(g, e.from) + " -" + e.rel + "-> " + nodeName(g, e.to)).join("; ");
+  const names = r.hits.map((h) => nodeLabel(g, h.node.id)).join(", ");
+  const rels = r.edges.map((e) => nodeLabel(g, e.from) + " -" + e.rel + "-> " + nodeLabel(g, e.to)).join("; ");
   return "Nodes: " + names + "\nEdges: " + rels;
 }
 

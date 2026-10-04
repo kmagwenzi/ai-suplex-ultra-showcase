@@ -3,21 +3,26 @@ import { scoreAnswer, distillLesson } from "./rubric";
 import { loadGraph } from "./graph";
 
 describe("rubric", () => {
-  it("scores a structure-aware answer higher than a mentions-only answer", () => {
+  it("rewards an answer that uses a relationship and a real figure", () => {
     const g = loadGraph("revenue");
-    const deepOnly = ["delivery-tracking"];
     const poor = "Your clients are Acme Logistics, Harare Beauty Co, and Gweru Auto Parts.";
     const good = "Pitch Delivery Tracking to Acme Logistics for $800-2000 — they bought WhatsApp Ordering, and delivery tracking is its adjacent service.";
-    const sp = scoreAnswer(poor, g, "which client should I upsell", deepOnly);
-    const sg = scoreAnswer(good, g, "which client should I upsell", deepOnly);
+    const sp = scoreAnswer(poor, g, "which client should I upsell");
+    const sg = scoreAnswer(good, g, "which client should I upsell");
     expect(sg.score).toBeGreaterThan(sp.score);
     expect(sg.breakdown.complete).toBe(3);
-    expect(sp.breakdown.complete).toBe(0);
+    expect(sg.breakdown.specific).toBe(2);
     expect(sp.failures.length).toBeGreaterThan(sg.failures.length);
   });
 
+  it("does NOT award specific for a bare node id digit", () => {
+    const g = loadGraph("revenue");
+    const r = scoreAnswer("The project p4 uses Booking, and no price band exists.", g, "q");
+    expect(r.breakdown.specific).toBe(0);
+  });
+
   it("distills failures into an imperative lesson", () => {
-    const r = { score: 3, breakdown: { grounded: 3, complete: 0, actionable: 0, specific: 0 }, failures: ["answer does not use the relationship structure that keyword search missed"] };
-    expect(distillLesson(r)).toContain("relationship structure");
+    const r = { score: 3, breakdown: { grounded: 3, complete: 0, actionable: 0, specific: 0 }, failures: ["answer does not use a relationship from the evidence graph"] };
+    expect(distillLesson(r)).toContain("relationship");
   });
 });
