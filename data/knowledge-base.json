@@ -1,0 +1,474 @@
+{
+  "name": "knowledge-base",
+  "nodes": [
+    {
+      "id": "ai-suplex-777",
+      "type": "product",
+      "label": "AI-Suplex 777",
+      "desc": "The free open-source library — tasklists, sessions, file-first memory, and the 3-layer memory stack.",
+      "status": "open-source (free)",
+      "link": "github.com/kmagwenzi/ai-suplex"
+    },
+    {
+      "id": "ultra-harness",
+      "type": "product",
+      "label": "AI-Suplex Ultra (Deep Ultra)",
+      "desc": "The paid harness on top of 777 — Gauntlet gamification, the LLM Wiki, and Graph RAG intelligence.",
+      "status": "premium tier",
+      "link": "ai-suplex-ultra-preview.netlify.app"
+    },
+    {
+      "id": "wqr",
+      "type": "product",
+      "label": "WQR — WhatsApp Quick Responder",
+      "desc": "A production WhatsApp AI commerce agent for African SMEs — 7-intent classifier, live inventory pricing, and EcoCash payments, 24 hours a day.",
+      "status": "live",
+      "stack": [
+        "LangChain",
+        "DeepSeek",
+        "Python",
+        "Spring Boot",
+        "PostgreSQL",
+        "Redis",
+        "Twilio",
+        "n8n",
+        "Docker"
+      ],
+      "link": "wqr.co.zw"
+    },
+    {
+      "id": "agents-terminal",
+      "type": "product",
+      "label": "Agents Terminal V3",
+      "desc": "A multi-agent orchestration platform — runs specialised sub-agents as Docker services, with an orchestrator that reviews every interaction and proposes weekly upgrades, human in the loop.",
+      "status": "built · AMD Hackathon ACT II (Unicorn Track)",
+      "stack": [
+        "DeepSeek",
+        "n8n",
+        "Twilio",
+        "PostgreSQL",
+        "Redis",
+        "Docker"
+      ]
+    },
+    {
+      "id": "graph-rag",
+      "type": "module",
+      "label": "Graph RAG",
+      "desc": "Structured retrieval over the knowledge graph — the technical moat and an Ultra pillar."
+    },
+    {
+      "id": "gauntlet",
+      "type": "module",
+      "label": "Gauntlet",
+      "desc": "The scored boss-rush evaluation loop — the gamification pillar."
+    },
+    {
+      "id": "llm-wiki",
+      "type": "module",
+      "label": "LLM Wiki",
+      "desc": "A Karpathy-style auto-wiki that structures your work into a browsable knowledge base — the content pillar."
+    },
+    {
+      "id": "3lm-memory",
+      "type": "module",
+      "label": "3lm Memory",
+      "desc": "The 3-layer memory stack and the compound loop (end → learn → promote → index)."
+    },
+    {
+      "id": "outreach-entity",
+      "type": "module",
+      "label": "Outreach Entity",
+      "desc": "The external loop — tracks sends, follows up, gates replies."
+    },
+    {
+      "id": "file-bridge",
+      "type": "module",
+      "label": "File Modality Bridge",
+      "desc": "convert.js — turns non-markdown files into markdown for ingestion."
+    },
+    {
+      "id": "knowledge-graph",
+      "type": "tool",
+      "label": "knowledge-graph.js",
+      "desc": "SQLite graph CLI — query, hubs, path tracing."
+    },
+    {
+      "id": "vault-index",
+      "type": "tool",
+      "label": "vault-index.js",
+      "desc": "Builds the entity index the graph ingests."
+    },
+    {
+      "id": "bbomb-hunter",
+      "type": "tool",
+      "label": "bbomb_hunter.py",
+      "desc": "Ranks B-Bomb candidates for promotion."
+    },
+    {
+      "id": "deepseek",
+      "type": "tool",
+      "label": "DeepSeek",
+      "desc": "The language model behind WQR's 7-intent classifier."
+    },
+    {
+      "id": "n8n",
+      "type": "tool",
+      "label": "n8n",
+      "desc": "The visual workflow engine, deployed in Docker."
+    },
+    {
+      "id": "postgresql",
+      "type": "tool",
+      "label": "PostgreSQL",
+      "desc": "Durable, transaction-safe order and payment records."
+    },
+    {
+      "id": "redis",
+      "type": "tool",
+      "label": "Redis Cloud",
+      "desc": "Real-time capture of every customer interaction."
+    },
+    {
+      "id": "twilio",
+      "type": "tool",
+      "label": "Twilio WhatsApp",
+      "desc": "The messaging API — works with any Zimbabwean number."
+    },
+    {
+      "id": "langchain",
+      "type": "tool",
+      "label": "LangChain",
+      "desc": "LLM orchestration used by the commerce agent."
+    },
+    {
+      "id": "ecocash",
+      "type": "tool",
+      "label": "EcoCash",
+      "desc": "Zimbabwe's mobile-money rail, integrated as its own payment sub-agent."
+    },
+    {
+      "id": "vault",
+      "type": "concept",
+      "label": "Vault",
+      "desc": "The markdown vault — the system of record."
+    },
+    {
+      "id": "insights",
+      "type": "concept",
+      "label": "Insights",
+      "desc": "Cross-session observations."
+    },
+    {
+      "id": "session-loop",
+      "type": "workflow",
+      "label": "Session Loop",
+      "desc": "start → execute → capture → end."
+    },
+    {
+      "id": "tasklist",
+      "type": "workflow",
+      "label": "Tasklist",
+      "desc": "Structured daily and long-running execution plans."
+    },
+    {
+      "id": "weekly-review",
+      "type": "workflow",
+      "label": "Weekly Review",
+      "desc": "The Saturday compound — promote, revise, index."
+    },
+    {
+      "id": "promote",
+      "type": "workflow",
+      "label": "Promote",
+      "desc": "Scored lesson promotion (min 70)."
+    },
+    {
+      "id": "workflow-pipeline",
+      "type": "workflow",
+      "label": "Workflow Pipeline",
+      "desc": "The assembly line — cycle plan → weekly plan → daily tasklist → session → 3lm → save context."
+    },
+    {
+      "id": "prompt-patterns",
+      "type": "artifact",
+      "label": "Prompt Patterns",
+      "desc": "Copy-paste interfaces for the skills."
+    },
+    {
+      "id": "skills",
+      "type": "artifact",
+      "label": "Skills",
+      "desc": "Instruction files for the AI roles."
+    },
+    {
+      "id": "revenue",
+      "type": "goal",
+      "label": "First Revenue",
+      "desc": "The Cycle 2 north star — zero to first dollar."
+    },
+    {
+      "id": "777-rhythm",
+      "type": "framework",
+      "label": "7-7-7 Rhythm",
+      "desc": "The temporal architecture — a 7-day week, a 7-week cycle, and a 7-cycle year (49 weeks)."
+    },
+    {
+      "id": "cycle",
+      "type": "framework",
+      "label": "Cycle",
+      "desc": "A 7-week block of focused execution and review."
+    },
+    {
+      "id": "session",
+      "type": "framework",
+      "label": "Session",
+      "desc": "One daily tasklist executed end-to-end."
+    },
+    {
+      "id": "the-gate",
+      "type": "framework",
+      "label": "The Gate",
+      "desc": "The quality gate — nothing ships until it passes review."
+    },
+    {
+      "id": "open-core",
+      "type": "framework",
+      "label": "Open-core",
+      "desc": "Open the chassis (777, free); sell the harness (Ultra)."
+    },
+    {
+      "id": "realist",
+      "type": "persona",
+      "label": "The Realist",
+      "desc": "The execution-audit persona — tells you whether the week moved toward revenue or toward comfort."
+    }
+  ],
+  "edges": [
+    {
+      "from": "graph-rag",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "gauntlet",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "3lm-memory",
+      "to": "ai-suplex-777",
+      "rel": "powers"
+    },
+    {
+      "from": "outreach-entity",
+      "to": "3lm-memory",
+      "rel": "depends_on"
+    },
+    {
+      "from": "file-bridge",
+      "to": "vault",
+      "rel": "feeds"
+    },
+    {
+      "from": "knowledge-graph",
+      "to": "graph-rag",
+      "rel": "implements"
+    },
+    {
+      "from": "vault-index",
+      "to": "knowledge-graph",
+      "rel": "feeds"
+    },
+    {
+      "from": "vault",
+      "to": "vault-index",
+      "rel": "feeds"
+    },
+    {
+      "from": "session-loop",
+      "to": "3lm-memory",
+      "rel": "feeds"
+    },
+    {
+      "from": "tasklist",
+      "to": "session-loop",
+      "rel": "implements"
+    },
+    {
+      "from": "weekly-review",
+      "to": "promote",
+      "rel": "depends_on"
+    },
+    {
+      "from": "promote",
+      "to": "3lm-memory",
+      "rel": "implements"
+    },
+    {
+      "from": "bbomb-hunter",
+      "to": "promote",
+      "rel": "feeds"
+    },
+    {
+      "from": "skills",
+      "to": "gauntlet",
+      "rel": "feeds"
+    },
+    {
+      "from": "prompt-patterns",
+      "to": "tasklist",
+      "rel": "feeds"
+    },
+    {
+      "from": "graph-rag",
+      "to": "revenue",
+      "rel": "feeds"
+    },
+    {
+      "from": "outreach-entity",
+      "to": "revenue",
+      "rel": "feeds"
+    },
+    {
+      "from": "insights",
+      "to": "graph-rag",
+      "rel": "feeds"
+    },
+    {
+      "from": "insights",
+      "to": "revenue",
+      "rel": "feeds"
+    },
+    {
+      "from": "wqr",
+      "to": "agents-terminal",
+      "rel": "built_on"
+    },
+    {
+      "from": "ultra-harness",
+      "to": "ai-suplex-777",
+      "rel": "built_on"
+    },
+    {
+      "from": "wqr",
+      "to": "twilio",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "deepseek",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "langchain",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "postgresql",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "redis",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "n8n",
+      "rel": "uses"
+    },
+    {
+      "from": "wqr",
+      "to": "ecocash",
+      "rel": "uses"
+    },
+    {
+      "from": "agents-terminal",
+      "to": "n8n",
+      "rel": "uses"
+    },
+    {
+      "from": "agents-terminal",
+      "to": "deepseek",
+      "rel": "uses"
+    },
+    {
+      "from": "agents-terminal",
+      "to": "postgresql",
+      "rel": "uses"
+    },
+    {
+      "from": "agents-terminal",
+      "to": "redis",
+      "rel": "uses"
+    },
+    {
+      "from": "agents-terminal",
+      "to": "twilio",
+      "rel": "uses"
+    },
+    {
+      "from": "llm-wiki",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "cycle",
+      "to": "777-rhythm",
+      "rel": "part_of"
+    },
+    {
+      "from": "session",
+      "to": "cycle",
+      "rel": "part_of"
+    },
+    {
+      "from": "session",
+      "to": "the-gate",
+      "rel": "applies"
+    },
+    {
+      "from": "weekly-review",
+      "to": "777-rhythm",
+      "rel": "applies"
+    },
+    {
+      "from": "workflow-pipeline",
+      "to": "777-rhythm",
+      "rel": "applies"
+    },
+    {
+      "from": "session-loop",
+      "to": "777-rhythm",
+      "rel": "applies"
+    },
+    {
+      "from": "ai-suplex-777",
+      "to": "open-core",
+      "rel": "ships_as"
+    },
+    {
+      "from": "ultra-harness",
+      "to": "open-core",
+      "rel": "ships_as"
+    },
+    {
+      "from": "realist",
+      "to": "weekly-review",
+      "rel": "applies"
+    },
+    {
+      "from": "ecocash",
+      "to": "agents-terminal",
+      "rel": "part_of"
+    },
+    {
+      "from": "the-gate",
+      "to": "ultra-harness",
+      "rel": "part_of"
+    }
+  ]
+}

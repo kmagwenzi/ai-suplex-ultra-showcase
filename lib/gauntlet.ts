@@ -22,8 +22,8 @@ export type StageCallback = (stage: string, data: unknown) => void;
 
 const INSTRUCTIONS =
   "Answer strictly from the evidence graph below. The Edges list is the NEW information: follow it " +
-  "(for example uses_service, adjacent, powers, feeds, depends_on, delivered_to) and name the relationship " +
-  "you used. Cite exact entity names. Name one concrete next action. Include any price band shown next to a node. " +
+  "(for example built_on, uses, applies, ships_as, part_of, powers, feeds, depends_on, delivered_to) and name the relationship " +
+  "you used. Cite exact entity names. Name one concrete next action. Include any status, stack, link or price band shown next to a node. " +
   "Two or three sentences maximum.";
 
 function nodeLabel(g: Graph, id: string): string {
@@ -34,6 +34,11 @@ function nodeLabel(g: Graph, id: string): string {
   const band = n.price_band as number[] | undefined;
   if (Array.isArray(band)) parts.push("($" + band.join("-") + ")");
   if (typeof n.price === "number") parts.push("($" + n.price + ")");
+  if (n.status) parts.push("[" + String(n.status) + "]");
+  const stack = n.stack as string[] | undefined;
+  if (Array.isArray(stack) && stack.length > 0) parts.push("{" + stack.join(", ") + "}");
+  if (n.link) parts.push("(" + String(n.link) + ")");
+  if (n.desc) parts.push("— " + String(n.desc));
   return parts.join(" ");
 }
 
@@ -55,15 +60,13 @@ export async function runGauntlet(
 ): Promise<GauntletResult> {
   const evA = retrieve.a(g, query);
   const evB = retrieve.b(g, query);
-  const aIds = new Set(evA.hits.map((h) => h.node.id));
-  const deepOnly = evB.hits.filter((h) => !aIds.has(h.node.id)).map((h) => h.node.id);
   const relsA = evA.edges.map((e) => e.rel);
   const relsB = evB.edges.map((e) => e.rel);
 
   onStage?.("evidence_a", { text: evidenceSummary(g, evA) });
   const promptA = INSTRUCTIONS + "\n\nQuestion: " + query + "\n\nEvidence:\n" + evidenceSummary(g, evA) + "\n\nAnswer:";
   const ansA = await model.generate(promptA);
-  const resultA = scoreAnswer(ansA, g, query, { deepOnlyIds: deepOnly, evidenceRels: relsA });
+  const resultA = scoreAnswer(ansA, g, query, { evidenceRels: relsA });
   onStage?.("score_a", { score: resultA.score, answer: ansA });
 
   const lesson = distillLesson(resultA);
@@ -77,7 +80,7 @@ export async function runGauntlet(
     "\n\nA previous attempt scored " + resultA.score + "/10. Address these failures: " + lesson +
     "\n\nAnswer:";
   const ansB = await model.generate(promptB);
-  const resultB = scoreAnswer(ansB, g, query, { deepOnlyIds: deepOnly, evidenceRels: relsB });
+  const resultB = scoreAnswer(ansB, g, query, { evidenceRels: relsB });
   onStage?.("score_b", { score: resultB.score, answer: ansB });
 
   return {

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return new Response("invalid JSON", { status: 400 });
   }
-  const scene = body.scene === "technical" ? "technical" : "revenue";
+  const scene = body.scene === "knowledge-base" ? "knowledge-base" : "revenue";
   const query = body.query || "which client should I upsell";
   const g = loadGraph(scene);
   const model = geminiModel();

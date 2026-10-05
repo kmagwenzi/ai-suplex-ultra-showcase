@@ -1,4 +1,4 @@
-import technical from "../data/technical-graph.json";
+import knowledgeBase from "../data/knowledge-base.json";
 import revenue from "../data/revenue-graph.json";
 
 export interface GraphNode {
@@ -70,12 +70,12 @@ export function parseGraph(json: string): Graph {
   return g;
 }
 
-const GRAPHS: Record<"technical" | "revenue", Graph> = {
-  technical: technical as Graph,
+const GRAPHS: Record<"knowledge-base" | "revenue", Graph> = {
+  "knowledge-base": knowledgeBase as Graph,
   revenue: revenue as Graph,
 };
 
-export function loadGraph(name: "technical" | "revenue"): Graph {
+export function loadGraph(name: "knowledge-base" | "revenue"): Graph {
   const g = GRAPHS[name];
   const errors = validateGraph(g);
   if (errors.length > 0) {

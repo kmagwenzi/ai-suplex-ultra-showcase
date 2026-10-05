@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 const SCENES = {
-  technical: {
-    label: "Technical",
-    question: "What connects Graph RAG to the revenue work in this system — and what should I build next?",
+  "knowledge-base": {
+    label: "Knowledge Base",
+    question: "What is WQR, and what powers it?",
   },
   revenue: {
     label: "Revenue",

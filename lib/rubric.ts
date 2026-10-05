@@ -14,7 +14,6 @@ export interface ScoreResult {
 }
 
 export interface ScoreOptions {
-  deepOnlyIds?: string[];
   /** Edge relationship names present in the evidence THIS stage was given. */
   evidenceRels?: string[];
 }
@@ -35,11 +34,12 @@ export function scoreAnswer(
   const mentioned = names.filter((x) => x.name.length > 0 && lower.includes(x.name));
   const grounded = mentioned.length >= 3 ? 3 : mentioned.length >= 1 ? 2 : 0;
 
-  const deepIds = new Set(opts?.deepOnlyIds ?? []);
   const evidenceRels = opts?.evidenceRels ?? g.edges.map((e) => e.rel);
   const citesRelationship = evidenceRels.some((r) => r.length > 2 && lower.includes(r));
-  const citesDeepNode = mentioned.some((x) => deepIds.has(x.id));
-  const complete = citesRelationship || citesDeepNode ? 3 : 0;
+  // "complete" is strictly about relationships: the answer must name a relationship
+  // present in the evidence THIS stage was given. A stage with zero edges therefore
+  // cannot score complete — the core honesty invariant of the showcase.
+  const complete = citesRelationship ? 3 : 0;
 
   const hasAction = /(pitch|offer|sell|upsell|recommend|bundle|build|prioriti[sz]e|next|focus)/.test(lower);
   const actionable = hasAction ? 2 : 0;
