@@ -2,7 +2,7 @@
 
 **The same question, answered twice. The first answer is retrieved by keyword. The second is retrieved by walking a knowledge graph. Both are scored — live, in public, against a rubric the model cannot talk its way around.**
 
-[![Tests](https://img.shields.io/badge/tests-20%20passing-brightgreen)](#running-it)
+[![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen)](#running-it)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)](tsconfig.json)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
 
@@ -10,7 +10,7 @@
 
 ## What you are looking at
 
-Pick a scene, press **Run the Gauntlet**, and four cards fill in as the run streams:
+Pick a scene, tap a question chip (or type your own), and four cards fill in as the run streams:
 
 | Card | What it shows |
 | --- | --- |
@@ -78,7 +78,7 @@ The run streams over `application/x-ndjson`: `scene → evidence_a → score_a �
 | Scene | Stage A | Stage B |
 | --- | --- | --- |
 | **Revenue** — *"Which of my clients is most likely to buy again, and what exactly should I pitch?"* | 5/10 | **10/10** |
-| **Technical** — *"What connects Graph RAG to the revenue work in this system — and what should I build next?"* | 4/10 | **8/10** |
+| **Knowledge Base** — *"What is WQR, and what powers it?"* | 5/10 | **10/10** |
 
 Observed on `deepseek-flash` at `effort: low`. **The absolute numbers are model-dependent; the mechanism is not.** Stage A's ceiling is structural: with no edges in its evidence, `complete` is unwinnable.
 
@@ -102,10 +102,12 @@ data/*.json             the two curated graphs
 
 | Graph | Nodes | Edges | Node types | Relationships |
 | --- | --- | --- | --- | --- |
-| **Technical** | 19 | 20 | module · tool · concept · workflow · artifact · goal | `depends_on` · `powers` · `feeds` · `implements` |
+| **Knowledge Base** | 36 | 45 | product · module · tool · concept · workflow · artifact · goal · framework · persona | `built_on` · `uses` · `applies` · `ships_as` · `part_of` · `powers` · `feeds` · `depends_on` · `implements` |
 | **Revenue** | 22 | 23 | client · project · service · skill | `delivered_to` · `uses_service` · `uses_skill` · `adjacent` |
 
 > **The revenue graph is synthetic sample data.** Five invented clients and five invented projects, authored to demonstrate cross-sell traversal. No real client, contract, or price is represented anywhere in this repository.
+
+> **🧭 Opportunity Mapper.** The Revenue scene *is* the Opportunity Mapper — the same traversal that answers a question also finds the next sale (`chain → price band → next action`). Zero extra engine; just a name and a badge.
 
 ---
 
@@ -118,7 +120,7 @@ npm run dev                    # http://localhost:3000
 ```
 
 ```bash
-npm test           # 20 tests — retrieval, rubric, gauntlet, fallback, graph validation
+npm test           # 25 tests — retrieval (incl. tiered fallback), rubric, gauntlet, fallback, graph validation
 npm run typecheck  # tsc --noEmit, strict
 ```
 

@@ -147,11 +147,11 @@ export default function Home() {
         : "…";
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center px-6 py-12">
+    <main data-scene={scene} className="min-h-screen text-ink flex flex-col items-center px-6 py-12">
       <div className="w-full max-w-3xl">
         <header className="mb-8 text-center">
           <h1 className="text-4xl font-bold tracking-tight">Deep Ultra 🦸</h1>
-          <p className="mt-2 text-zinc-400">
+          <p className="mt-2 text-mut">
             Graph RAG retrieval · a self-scoring Gauntlet · a visible improvement, streamed live.
           </p>
         </header>
@@ -164,8 +164,8 @@ export default function Home() {
               disabled={state.running}
               className={
                 scene === s
-                  ? "px-4 py-2 rounded-full bg-amber-500 text-black font-semibold"
-                  : "px-4 py-2 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-500"
+                  ? "px-4 py-2 rounded-full bg-gold text-navy-950 font-semibold"
+                  : "px-4 py-2 rounded-full border border-white/10 text-mut hover:border-gold-hi/50"
               }
             >
               {SCENES[s].label}
@@ -179,7 +179,7 @@ export default function Home() {
               key={q.label}
               onClick={() => run(q.text)}
               disabled={state.running}
-              className="px-3 py-1.5 rounded-full text-sm border border-zinc-700 text-zinc-300 hover:border-amber-500 hover:text-amber-400"
+              className="px-3 py-1.5 rounded-full text-sm border border-white/10 text-mut hover:border-gold hover:text-gold-hi"
             >
               {q.label}
             </button>
@@ -189,8 +189,8 @@ export default function Home() {
             disabled={state.running}
             className={
               freeText
-                ? "px-3 py-1.5 rounded-full text-sm bg-amber-500 text-black font-semibold"
-                : "px-3 py-1.5 rounded-full text-sm border border-zinc-700 text-zinc-300 hover:border-amber-500 hover:text-amber-400"
+                ? "px-3 py-1.5 rounded-full text-sm bg-gold text-navy-950 font-semibold"
+                : "px-3 py-1.5 rounded-full text-sm border border-white/10 text-mut hover:border-gold hover:text-gold-hi"
             }
           >
             Something else
@@ -210,28 +210,28 @@ export default function Home() {
               onChange={(e) => setDraft(e.target.value)}
               placeholder={SCENES[scene].hint}
               autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+              className="w-full px-4 py-3 rounded-lg bg-navy-800/60 border border-white/10 text-ink placeholder-mut focus:outline-none focus:border-gold"
             />
           </form>
         )}
 
-        <p className="text-center text-zinc-300 mb-1 italic">
+        <p className="text-center text-mut mb-1 italic">
           {query ? "“" + query + "”" : "pick a question, or ask your own"}
         </p>
-        <p className="text-center text-xs text-zinc-600 mb-6">
+        <p className="text-center text-xs text-mut/60 mb-6">
           {state.graphName ? "graph: " + state.graphName : "two curated graphs · one engine"}
         </p>
 
         {state.error && (
-          <div className="mb-6 rounded-xl border border-red-800 bg-red-950/40 p-4 text-sm text-red-300">{state.error}</div>
+          <div className="mb-6 rounded-xl border border-red-900/60 bg-red-950/40 p-4 text-sm text-red-300">{state.error}</div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Card title="Source">
             {state.sourceA || state.sourceB ? (
-              <div className="space-y-2 text-xs text-zinc-400 font-mono break-words">
-                <div><span className="text-zinc-500">A · keyword:</span> {state.sourceA || "…"}</div>
-                <div><span className="text-amber-500">B · graph:</span> {state.sourceB || "…"}</div>
+              <div className="space-y-2 text-xs text-mut font-mono break-words">
+                <div><span className="text-mut/60">A · keyword:</span> {state.sourceA || "…"}</div>
+                <div><span className="text-gold-hi">B · graph:</span> {state.sourceB || "…"}</div>
               </div>
             ) : (
               <Waiting />
@@ -241,8 +241,8 @@ export default function Home() {
           <Card title="Score">
             {state.scoreB !== null ? (
               <div>
-                <div className="text-3xl font-bold text-amber-400">{scoreText}</div>
-                <div className="text-xs text-zinc-500 mt-1">out of 10 · the retry closes the gap</div>
+                <div className="text-3xl font-bold text-gold-hi">{scoreText}</div>
+                <div className="text-xs text-mut mt-1">out of 10 · the retry closes the gap</div>
               </div>
             ) : (
               <Waiting />
@@ -250,11 +250,22 @@ export default function Home() {
           </Card>
 
           <Card title="Lesson">
-            {state.lesson ? <p className="text-sm text-zinc-300">{state.lesson}</p> : <Waiting />}
+            {state.lesson ? <p className="text-sm text-ink/90">{state.lesson}</p> : <Waiting />}
           </Card>
 
-          <Card title="Answer">
-            {state.answer ? <p className="text-sm text-zinc-100 whitespace-pre-wrap">{state.answer}</p> : <Waiting />}
+          <Card title={scene === "revenue" ? "🧭 Opportunity Mapper" : "Answer"}>
+            {state.answer ? (
+              <div>
+                <p className="text-sm text-ink whitespace-pre-wrap">{state.answer}</p>
+                {scene === "revenue" && (
+                  <p className="text-xs text-gold-hi mt-3 pt-2 border-t border-white/10">
+                    chain → price band → next action · the same traversal that answers a question also finds the next sale
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Waiting />
+            )}
           </Card>
         </div>
       </div>
@@ -264,13 +275,13 @@ export default function Home() {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 min-h-44">
-      <div className="text-xs uppercase tracking-wider text-amber-500 mb-3">{title}</div>
+    <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5 min-h-44">
+      <div className="text-xs uppercase tracking-wider text-gold-hi mb-3">{title}</div>
       {children}
     </div>
   );
 }
 
 function Waiting() {
-  return <p className="text-sm text-zinc-600">…</p>;
+  return <p className="text-sm text-mut/60">…</p>;
 }
