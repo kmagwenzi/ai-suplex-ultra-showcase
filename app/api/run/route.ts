@@ -6,6 +6,10 @@ import { geminiModel } from "../../../lib/model";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Two sequential model calls live behind this endpoint. Vercel's default function
+// ceiling is 10s, which would truncate the stream mid-run; 60s is the portable max
+// (Hobby). Without this the demo dies in front of the person watching it.
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   let body: { scene?: string; query?: string };

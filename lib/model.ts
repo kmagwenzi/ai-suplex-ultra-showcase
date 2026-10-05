@@ -1,5 +1,16 @@
 import type { Model } from "./gauntlet";
 
+// A provider that hangs must lose to one that answers. 30s is comfortably above a
+// normal deepseek-flash reply and well below the 60s function ceiling on the route.
+const REQUEST_TIMEOUT_MS = 30_000;
+
+// DeepSeek bills reasoning tokens against max_tokens and emits them BEFORE the answer.
+// Measured on the technical Stage B prompt: 1,113-2,000 reasoning tokens, then ~430
+// characters of answer. At max_tokens 2000 a reasoning spike consumed the entire
+// budget and the answer came back empty with finish_reason "length". 4000 leaves room
+// for the reasoning trace plus the reply.
+const MAX_TOKENS = 4000;
+
 interface Provider {
   name: string;
   configured: boolean;
@@ -18,6 +29,7 @@ function geminiProvider(): Provider {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { maxOutputTokens: 1500, thinkingConfig: { thinkingBudget: 0 } },
@@ -54,7 +66,7 @@ function deepseekProvider(): Provider {
       const payload: Record<string, unknown> = {
         model: modelId,
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 2000,
+        max_tokens: MAX_TOKENS,
         temperature: 0.2,
         stream: false,
       };
@@ -62,6 +74,7 @@ function deepseekProvider(): Provider {
       const res = await fetch(base + "/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + apiKey },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -69,10 +82,17 @@ function deepseekProvider(): Provider {
         throw new Error("DeepSeek HTTP " + res.status + ": " + body.slice(0, 200));
       }
       const json = (await res.json()) as {
-        choices?: Array<{ message?: { content?: string; reasoning_content?: string } }>;
+        choices?: Array<{ finish_reason?: string; message?: { content?: string; reasoning_content?: string } }>;
       };
-      const text = json.choices?.[0]?.message?.content ?? "";
-      if (!text) throw new Error("DeepSeek returned no text");
+      const choice = json.choices?.[0];
+      const text = choice?.message?.content ?? "";
+      if (!text) {
+        throw new Error(
+          choice?.finish_reason === "length"
+            ? "DeepSeek spent the whole " + MAX_TOKENS + "-token budget on reasoning before answering (effort=" + effort + ") — raise MAX_TOKENS or lower effort"
+            : "DeepSeek returned no text (finishReason=" + (choice?.finish_reason ?? "unknown") + ")",
+        );
+      }
       return text;
     },
   };
