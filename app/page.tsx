@@ -26,6 +26,9 @@ const SCENES = {
 
 type Scene = keyof typeof SCENES;
 
+interface VisNode { id: string; label: string; }
+interface VisEdge { from: string; to: string; rel?: string; }
+
 interface RunState {
   running: boolean;
   graphName: string;
@@ -36,6 +39,9 @@ interface RunState {
   lesson: string;
   answer: string;
   error: string;
+  nodesA: VisNode[];
+  nodesB: VisNode[];
+  edges: VisEdge[];
 }
 
 const initialState: RunState = {
@@ -48,11 +54,115 @@ const initialState: RunState = {
   lesson: "",
   answer: "",
   error: "",
+  nodesA: [],
+  nodesB: [],
+  edges: [],
 };
 
 interface StreamEvent {
   stage: string;
   data: Record<string, unknown>;
+}
+
+function truncate(s: string, n: number): string {
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
+// Deterministic radial layout: seeds at the centre, each BFS hop a ring.
+// No force simulation — the layout is a pure function of the retrieved sub-graph.
+function radialLayout(
+  nodes: VisNode[],
+  edges: VisEdge[],
+  seedIds: Set<string>,
+  w: number,
+  h: number,
+): Map<string, { x: number; y: number }> {
+  const adj = new Map<string, string[]>();
+  for (const e of edges) {
+    if (!adj.has(e.from)) adj.set(e.from, []);
+    if (!adj.has(e.to)) adj.set(e.to, []);
+    adj.get(e.from)!.push(e.to);
+    adj.get(e.to)!.push(e.from);
+  }
+  const depth = new Map<string, number>();
+  const queue: string[] = [];
+  for (const id of seedIds) { depth.set(id, 0); queue.push(id); }
+  while (queue.length) {
+    const id = queue.shift()!;
+    const d = depth.get(id)!;
+    for (const nb of adj.get(id) || []) {
+      if (!depth.has(nb)) { depth.set(nb, d + 1); queue.push(nb); }
+    }
+  }
+  let maxD = 0;
+  for (const d of depth.values()) maxD = Math.max(maxD, d);
+  for (const n of nodes) if (!depth.has(n.id)) depth.set(n.id, maxD + 1);
+
+  const rings = new Map<number, string[]>();
+  for (const n of nodes) {
+    const d = depth.get(n.id)!;
+    if (!rings.has(d)) rings.set(d, []);
+    rings.get(d)!.push(n.id);
+  }
+  const maxRing = Math.max(0, ...Array.from(rings.keys()));
+  const cx = w / 2;
+  const cy = h / 2;
+  const r0 = 30;
+  const avail = Math.min(w, h) / 2 - 26;
+  const spacing = maxRing > 0 ? (avail - r0) / maxRing : 0;
+  const pos = new Map<string, { x: number; y: number }>();
+  for (const [d, ids] of Array.from(rings.entries())) {
+    const r = maxRing === 0 ? 0 : r0 + spacing * d;
+    const n = ids.length;
+    ids.forEach((id, i) => {
+      const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+      pos.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+    });
+  }
+  return pos;
+}
+
+function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisNode[]; edges: VisEdge[] }) {
+  const w = 640;
+  const h = 380;
+  if (nodesA.length === 0 && nodesB.length === 0) {
+    return <div className="flex items-center justify-center h-64 text-mut/50 text-sm">run a question to light the graph</div>;
+  }
+  const nodes = nodesB.length > 0 ? nodesB : nodesA;
+  const seedIds = new Set(nodesA.map((n) => n.id));
+  const pos = radialLayout(nodes, edges, seedIds, w, h);
+  const aIds = new Set(nodesA.map((n) => n.id));
+  return (
+    <svg viewBox={"0 0 " + w + " " + h} className="w-full h-auto" role="img" aria-label="retrieved graph">
+      {edges.map((e, i) => {
+        const p1 = pos.get(e.from);
+        const p2 = pos.get(e.to);
+        if (!p1 || !p2) return null;
+        return (
+          <line key={"e" + i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="#b8862e" strokeOpacity={0.55} strokeWidth={1.2}>
+            {e.rel ? <title>{e.from + " → " + e.rel + " → " + e.to}</title> : null}
+          </line>
+        );
+      })}
+      {nodes.map((n) => {
+        const p = pos.get(n.id);
+        if (!p) return null;
+        const isSeed = aIds.has(n.id);
+        const fill = isSeed ? "#94a3b8" : "#d4a94f";
+        const r = isSeed ? 7 : 5;
+        return (
+          <g key={n.id}>
+            <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#080e1a" strokeWidth={1.5}>
+              <title>{n.label}</title>
+            </circle>
+            <text x={p.x} y={p.y + r + 11} textAnchor="middle" fontSize="9" fill="#94a3b8">
+              {truncate(n.label, 14)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
 export default function Home() {
@@ -69,9 +179,18 @@ export default function Home() {
         case "scene":
           return { ...s, graphName: String(ev.data.graph ?? ev.data.scene ?? "") };
         case "evidence_a":
-          return { ...s, sourceA: String(ev.data.text ?? "") };
+          return {
+            ...s,
+            sourceA: String(ev.data.text ?? ""),
+            nodesA: Array.isArray(ev.data.nodes) ? (ev.data.nodes as VisNode[]) : [],
+          };
         case "evidence_b":
-          return { ...s, sourceB: String(ev.data.text ?? "") };
+          return {
+            ...s,
+            sourceB: String(ev.data.text ?? ""),
+            nodesB: Array.isArray(ev.data.nodes) ? (ev.data.nodes as VisNode[]) : [],
+            edges: Array.isArray(ev.data.edges) ? (ev.data.edges as VisEdge[]) : [],
+          };
         case "score_a":
           return { ...s, scoreA: Number(ev.data.score ?? 0) };
         case "score_b":
@@ -225,6 +344,17 @@ export default function Home() {
         {state.error && (
           <div className="mb-6 rounded-xl border border-red-900/60 bg-red-950/40 p-4 text-sm text-red-300">{state.error}</div>
         )}
+
+        <div className="mb-6 rounded-xl border border-white/10 bg-navy-800/50 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs uppercase tracking-wider text-gold-hi">Retrieval Graph</div>
+            <div className="flex items-center gap-3 text-[10px] text-mut">
+              <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#94a3b8] inline-block" /> matched (A)</span>
+              <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#d4a94f] inline-block" /> graph-reached (B)</span>
+            </div>
+          </div>
+          <GraphPanel nodesA={state.nodesA} nodesB={state.nodesB} edges={state.edges} />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Card title="Source">

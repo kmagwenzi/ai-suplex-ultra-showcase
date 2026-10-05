@@ -1,4 +1,4 @@
-import type { Graph } from "./graph";
+import type { Graph, GraphNode } from "./graph";
 import type { RetrievalResult } from "./retrieval";
 import { scoreAnswer, distillLesson } from "./rubric";
 
@@ -42,6 +42,13 @@ function nodeLabel(g: Graph, id: string): string {
   return parts.join(" ");
 }
 
+// Short display name for the SVG visual (strip the " — subtitle" from KB labels).
+function shortLabel(n: GraphNode): string {
+  const raw = String(n.name || n.label || n.id);
+  const em = raw.indexOf(" — ");
+  return em >= 0 ? raw.slice(0, em) : raw;
+}
+
 function tierLabel(r: RetrievalResult): string {
   switch (r.tier) {
     case "strict":
@@ -77,7 +84,11 @@ export async function runGauntlet(
   const relsA = evA.edges.map((e) => e.rel);
   const relsB = evB.edges.map((e) => e.rel);
 
-  onStage?.("evidence_a", { text: evidenceSummary(g, evA) });
+  onStage?.("evidence_a", {
+    text: evidenceSummary(g, evA),
+    nodes: evA.hits.map((h) => ({ id: h.node.id, label: shortLabel(h.node) })),
+    edges: [],
+  });
   const promptA = INSTRUCTIONS + "\n\nQuestion: " + query + "\n\nEvidence:\n" + evidenceSummary(g, evA) + "\n\nAnswer:";
   const ansA = await model.generate(promptA);
   const resultA = scoreAnswer(ansA, g, query, { evidenceRels: relsA });
@@ -86,7 +97,11 @@ export async function runGauntlet(
   const lesson = distillLesson(resultA);
   onStage?.("lesson", { text: lesson });
 
-  onStage?.("evidence_b", { text: evidenceSummary(g, evB) });
+  onStage?.("evidence_b", {
+    text: evidenceSummary(g, evB),
+    nodes: evB.hits.map((h) => ({ id: h.node.id, label: shortLabel(h.node) })),
+    edges: evB.edges.map((e) => ({ from: e.from, to: e.to, rel: e.rel })),
+  });
   const promptB =
     INSTRUCTIONS +
     "\n\nQuestion: " + query +
