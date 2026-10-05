@@ -21,7 +21,7 @@
       "id": "wqr",
       "type": "product",
       "label": "WQR — WhatsApp Quick Responder",
-      "desc": "A production WhatsApp AI commerce agent for African SMEs — 7-intent classifier, live inventory pricing, and EcoCash payments, 24 hours a day.",
+      "desc": "A production WhatsApp AI commerce agent for African SMEs — 7-intent classifier, live inventory pricing, and EcoCash and Paynow payment integration.",
       "status": "live",
       "stack": [
         "LangChain",
