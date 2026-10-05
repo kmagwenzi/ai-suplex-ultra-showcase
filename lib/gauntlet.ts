@@ -42,10 +42,24 @@ function nodeLabel(g: Graph, id: string): string {
   return parts.join(" ");
 }
 
+function tierLabel(r: RetrievalResult): string {
+  switch (r.tier) {
+    case "strict":
+      return "matched " + r.hits.length + " nodes";
+    case "relaxed":
+      return "relaxed match";
+    case "hubs":
+      return "no lexical match — seeded from graph hubs";
+    default:
+      return "";
+  }
+}
+
 export function evidenceSummary(g: Graph, r: RetrievalResult): string {
   const names = r.hits.map((h) => nodeLabel(g, h.node.id)).join(", ");
   const rels = r.edges.map((e) => nodeLabel(g, e.from) + " -" + e.rel + "-> " + nodeLabel(g, e.to)).join("; ");
-  return "Nodes: " + names + "\nEdges: " + rels;
+  const tier = tierLabel(r);
+  return (tier ? tier + "\n" : "") + "Nodes: " + names + "\nEdges: " + rels;
 }
 
 export async function runGauntlet(

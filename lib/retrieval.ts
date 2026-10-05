@@ -1,7 +1,12 @@
 import type { Graph, GraphNode } from "./graph";
 
 export interface RetrievalHit { node: GraphNode; reason: string; }
-export interface RetrievalResult { hits: RetrievalHit[]; edges: { from: string; to: string; rel: string }[]; }
+export interface RetrievalResult {
+  hits: RetrievalHit[];
+  edges: { from: string; to: string; rel: string }[];
+  /** Which fallback tier produced the hits — surfaced in the Source card. */
+  tier?: "strict" | "relaxed" | "hubs";
+}
 
 const STOP = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "can", "could", "do", "does",
@@ -11,8 +16,10 @@ const STOP = new Set([
   "were", "what", "which", "who", "will", "with", "would", "you", "your", "exactly",
 ]);
 
+// Minimum token length. Drops single-character noise ("7" from "7-7-7") so a real
+// word must drive the match.
 function tokens(query: string): string[] {
-  return query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 0 && !STOP.has(t));
+  return query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 2 && !STOP.has(t));
 }
 
 function variants(t: string): string[] {
@@ -23,22 +30,56 @@ function variants(t: string): string[] {
   return [...set];
 }
 
+function nodeText(n: GraphNode): string {
+  return [n.label, n.name, n.desc, n.industry, n.type]
+    .filter((v) => typeof v === "string")
+    .join(" ")
+    .toLowerCase();
+}
+
+// Tier 1: a token (or its stem variant) matches a WHOLE word in the node text.
+function wordMatch(text: string, t: string): boolean {
+  const words = text.split(/[^a-z0-9]+/);
+  return variants(t).some((v) => words.includes(v));
+}
+
+// Tier 2: a token is the PREFIX of a whole word in the node text.
+function prefixMatch(text: string, t: string): boolean {
+  return text.split(/[^a-z0-9]+/).some((w) => w.startsWith(t));
+}
+
+// Tier 3: the highest-degree nodes, so the retrieval never returns empty.
+function topHubs(g: Graph, k: number): RetrievalHit[] {
+  const degree = new Map<string, number>();
+  for (const e of g.edges) {
+    degree.set(e.from, (degree.get(e.from) || 0) + 1);
+    degree.set(e.to, (degree.get(e.to) || 0) + 1);
+  }
+  return [...g.nodes]
+    .map((n) => ({ node: n, deg: degree.get(n.id) || 0 }))
+    .sort((a, b) => b.deg - a.deg)
+    .slice(0, k)
+    .map((x) => ({ node: x.node, reason: "graph hub (degree " + x.deg + ")" }));
+}
+
 export function classicRetrieve(g: Graph, query: string): RetrievalResult {
   const toks = tokens(query);
-  const hits: RetrievalHit[] = [];
-  for (const node of g.nodes) {
-    const text = [node.label, node.name, node.desc, node.industry, node.type]
-      .filter((v) => typeof v === "string")
-      .join(" ")
-      .toLowerCase();
-    for (const t of toks) {
-      if (variants(t).some((v) => text.includes(v))) {
-        hits.push({ node, reason: "matched token '" + t + "'" });
-        break;
-      }
-    }
+
+  // Tier 1 — strict whole-word (stem-variant) match
+  const strict = g.nodes.filter((n) => toks.some((t) => wordMatch(nodeText(n), t)));
+  if (strict.length > 0) {
+    return { hits: strict.map((n) => ({ node: n, reason: "matched token" })), edges: [], tier: "strict" };
   }
-  return { hits, edges: [] };
+
+  // Tier 2 — relaxed prefix match on tokens >= 4 chars
+  const prefixToks = toks.filter((t) => t.length >= 4);
+  const relaxed = g.nodes.filter((n) => prefixToks.some((t) => prefixMatch(nodeText(n), t)));
+  if (relaxed.length > 0) {
+    return { hits: relaxed.map((n) => ({ node: n, reason: "prefix match" })), edges: [], tier: "relaxed" };
+  }
+
+  // Tier 3 — no lexical match: seed from the graph hubs, and say so
+  return { hits: topHubs(g, 4), edges: [], tier: "hubs" };
 }
 
 export function graphRetrieve(g: Graph, query: string, maxHops = 3): RetrievalResult {

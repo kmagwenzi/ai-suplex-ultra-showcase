@@ -46,3 +46,40 @@ describe("contrast (Stage A vs B)", () => {
     expect(c.graph.edges.length).toBeGreaterThan(c.classic.edges.length);
   });
 });
+
+describe("tiered fallback (free-text robustness)", () => {
+  it("tier 1: strict whole-word match is the default", () => {
+    const g = loadGraph("revenue");
+    const r = classicRetrieve(g, "which client should I upsell");
+    expect(r.tier).toBe("strict");
+    expect(r.hits.length).toBeGreaterThan(0);
+  });
+
+  it("tier 2: relaxed prefix match fires when no whole word matches", () => {
+    const g = loadGraph("revenue");
+    const r = classicRetrieve(g, "deli track");
+    expect(r.tier).toBe("relaxed");
+    expect(r.hits.some((h) => h.node.id === "delivery-tracking")).toBe(true);
+  });
+
+  it("tier 3: hubs fire when nothing lexical matches — never dead-ends", () => {
+    const g = loadGraph("revenue");
+    const r = classicRetrieve(g, "zzzz qqqq");
+    expect(r.tier).toBe("hubs");
+    expect(r.hits.length).toBe(4);
+  });
+
+  it("graph traversal still works from tier-3 hub seeds", () => {
+    const g = loadGraph("revenue");
+    const r = graphRetrieve(g, "zzzz qqqq");
+    expect(r.hits.length).toBeGreaterThan(0);
+    expect(r.edges.length).toBeGreaterThan(0);
+  });
+
+  it("knowledge-base free text reaches the memory stack", () => {
+    const g = loadGraph("knowledge-base");
+    const r = classicRetrieve(g, "how does the memory compound?");
+    expect(r.tier).toBe("strict");
+    expect(r.hits.some((h) => h.node.id === "3lm-memory")).toBe(true);
+  });
+});

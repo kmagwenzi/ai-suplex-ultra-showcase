@@ -6,11 +6,21 @@ import type { ReactNode } from "react";
 const SCENES = {
   "knowledge-base": {
     label: "Knowledge Base",
-    question: "What is WQR, and what powers it?",
+    queries: [
+      { label: "7-7-7 rhythm", text: "What is the 7-7-7 rhythm and how is it applied in AI-Suplex?" },
+      { label: "What is WQR?", text: "What is WQR, and what powers it?" },
+      { label: "777 vs Ultra", text: "What is the difference between AI-Suplex 777 and Ultra?" },
+    ],
+    hint: "try “how does the memory compound?”",
   },
   revenue: {
     label: "Revenue",
-    question: "Which of my clients is most likely to buy again, and what exactly should I pitch?",
+    queries: [
+      { label: "Who buys again?", text: "Which of my clients is most likely to buy again, and what exactly should I pitch?" },
+      { label: "Who went quiet?", text: "Which client has gone quiet, and what is the follow-up?" },
+      { label: "Revenue risk", text: "Where is my revenue concentrated — and what is the risk?" },
+    ],
+    hint: "try “which service should I productise next?”",
   },
 } as const;
 
@@ -48,6 +58,9 @@ interface StreamEvent {
 export default function Home() {
   const [scene, setScene] = useState<Scene>("revenue");
   const [state, setState] = useState<RunState>(initialState);
+  const [query, setQuery] = useState<string>("");
+  const [freeText, setFreeText] = useState<boolean>(false);
+  const [draft, setDraft] = useState<string>("");
   const controllerRef = useRef<AbortController | null>(null);
 
   function applyEvent(ev: StreamEvent) {
@@ -73,17 +86,19 @@ export default function Home() {
     });
   }
 
-  async function run() {
+  async function run(q: string) {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
+    setQuery(q);
+    setFreeText(false);
     setState({ ...initialState, running: true });
 
     try {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scene, query: SCENES[scene].question }),
+        body: JSON.stringify({ scene, query: q }),
         signal: controller.signal,
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
@@ -119,6 +134,9 @@ export default function Home() {
   function switchScene(s: Scene) {
     setScene(s);
     setState(initialState);
+    setQuery("");
+    setDraft("");
+    setFreeText(false);
   }
 
   const scoreText =
@@ -155,20 +173,54 @@ export default function Home() {
           ))}
         </div>
 
-        <p className="text-center text-zinc-300 mb-1 italic">“{SCENES[scene].question}”</p>
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
+          {SCENES[scene].queries.map((q) => (
+            <button
+              key={q.label}
+              onClick={() => run(q.text)}
+              disabled={state.running}
+              className="px-3 py-1.5 rounded-full text-sm border border-zinc-700 text-zinc-300 hover:border-amber-500 hover:text-amber-400"
+            >
+              {q.label}
+            </button>
+          ))}
+          <button
+            onClick={() => setFreeText(!freeText)}
+            disabled={state.running}
+            className={
+              freeText
+                ? "px-3 py-1.5 rounded-full text-sm bg-amber-500 text-black font-semibold"
+                : "px-3 py-1.5 rounded-full text-sm border border-zinc-700 text-zinc-300 hover:border-amber-500 hover:text-amber-400"
+            }
+          >
+            Something else
+          </button>
+        </div>
+
+        {freeText && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (draft.trim()) run(draft.trim());
+            }}
+            className="mb-4"
+          >
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder={SCENES[scene].hint}
+              autoFocus
+              className="w-full px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+            />
+          </form>
+        )}
+
+        <p className="text-center text-zinc-300 mb-1 italic">
+          {query ? "“" + query + "”" : "pick a question, or ask your own"}
+        </p>
         <p className="text-center text-xs text-zinc-600 mb-6">
           {state.graphName ? "graph: " + state.graphName : "two curated graphs · one engine"}
         </p>
-
-        <div className="text-center mb-8">
-          <button
-            onClick={run}
-            disabled={state.running}
-            className="px-6 py-3 rounded-lg bg-zinc-100 text-black font-semibold disabled:opacity-50"
-          >
-            {state.running ? "Running the Gauntlet…" : "Run the Gauntlet"}
-          </button>
-        </div>
 
         {state.error && (
           <div className="mb-6 rounded-xl border border-red-800 bg-red-950/40 p-4 text-sm text-red-300">{state.error}</div>
