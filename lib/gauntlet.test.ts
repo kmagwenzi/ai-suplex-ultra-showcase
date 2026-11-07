@@ -44,3 +44,24 @@ describe("gauntlet", () => {
     expect(stages).toContain("score_b");
   });
 });
+
+
+describe("display evidence", () => {
+  it("caps and dedupes what a human reads", () => {
+    const g = loadGraph("knowledge-base");
+    const r = graphRetrieve(g, "what is the difference between AI-Suplex 777 and Ultra");
+    const full = evidenceSummary(g, r);
+    const shown = evidenceSummary(g, r, { mode: "display" });
+    expect(shown.length).toBeLessThan(full.length);
+    expect(shown).toContain("more");
+    expect(shown.split("\n").length).toBeLessThanOrEqual(3);
+  });
+
+  it("keeps the prompt path rich", () => {
+    const g = loadGraph("knowledge-base");
+    const r = graphRetrieve(g, "what is the difference between AI-Suplex 777 and Ultra");
+    const full = evidenceSummary(g, r);
+    expect(full).toContain("—");
+    expect(evidenceSummary(g, r, { mode: "prompt" })).toBe(full);
+  });
+});
