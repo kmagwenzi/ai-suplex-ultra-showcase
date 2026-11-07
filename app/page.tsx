@@ -429,7 +429,7 @@ export default function Home() {
 
             {/* Graph band — full bleed, hairline */}
             <div className="relative">
-              <div className="mb-1 flex items-center justify-between">
+              <div className="mb-2 flex flex-col gap-1.5 sm:mb-1 sm:flex-row sm:items-center sm:justify-between">
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
                   Retrieval graph
                 </span>
