@@ -126,10 +126,11 @@ function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisN
   const h = 380;
   if (nodesA.length === 0 && nodesB.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center">
-        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-mut/40">
+      <div className="flex h-[200px] flex-col items-center justify-center gap-3">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-mut/40">
           run a question to light the graph
         </span>
+        <span className="h-px w-16 bg-gold/25" />
       </div>
     );
   }
@@ -492,8 +493,13 @@ export default function Home() {
                       {scoreA !== null ? scoreA : "–"}
                     </span>
                     <span className="font-mono text-[13px] text-mut/30">→</span>
-                    <span className="font-serif text-[3.6rem] leading-none tracking-tight text-gold-hi">
-                      {scoreB !== null ? (Number.isInteger(scoreB) ? scoreB : scoreB.toFixed(1)) : "–"}
+                    <span
+                      className={
+                        "font-serif leading-none tracking-tight " +
+                        (scoreB !== null ? "text-[3.6rem] text-gold-hi" : "text-[2.2rem] text-mut/25")
+                      }
+                    >
+                      {scoreB !== null ? (Number.isInteger(scoreB) ? scoreB : scoreB.toFixed(1)) : "—"}
                     </span>
                   </div>
                   <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-mut/45">
