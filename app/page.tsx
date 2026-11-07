@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SCENES = {
   "knowledge-base": {
@@ -126,43 +125,99 @@ function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisN
   const w = 640;
   const h = 380;
   if (nodesA.length === 0 && nodesB.length === 0) {
-    return <div className="flex items-center justify-center h-64 text-mut/50 text-sm">run a question to light the graph</div>;
+    return (
+      <div className="flex h-[300px] items-center justify-center">
+        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-mut/40">
+          run a question to light the graph
+        </span>
+      </div>
+    );
   }
   const nodes = nodesB.length > 0 ? nodesB : nodesA;
   const seedIds = new Set(nodesA.map((n) => n.id));
   const pos = radialLayout(nodes, edges, seedIds, w, h);
   const aIds = new Set(nodesA.map((n) => n.id));
   return (
-    <svg viewBox={"0 0 " + w + " " + h} className="w-full h-auto" role="img" aria-label="retrieved graph">
-      {edges.map((e, i) => {
-        const p1 = pos.get(e.from);
-        const p2 = pos.get(e.to);
-        if (!p1 || !p2) return null;
-        return (
-          <line key={"e" + i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="#b8862e" strokeOpacity={0.55} strokeWidth={1.2}>
-            {e.rel ? <title>{e.from + " → " + e.rel + " → " + e.to}</title> : null}
-          </line>
-        );
-      })}
-      {nodes.map((n) => {
+    <svg
+      viewBox={"0 0 " + w + " " + h}
+      className="w-full h-auto"
+      role="img"
+      aria-label="retrieved graph"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <g>
+        {edges.map((e, i) => {
+          const p1 = pos.get(e.from);
+          const p2 = pos.get(e.to);
+          if (!p1 || !p2) return null;
+          return (
+            <line
+              key={"e" + i}
+              x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+              pathLength={1}
+              stroke="#b8862e"
+              strokeOpacity={0.5}
+              strokeWidth={1.1}
+              strokeDasharray={1}
+              className="edge-draw"
+              style={{ animationDelay: Math.min(i * 18, 500) + "ms" }}
+            >
+              {e.rel ? <title>{e.from + " → " + e.rel + " → " + e.to}</title> : null}
+            </line>
+          );
+        })}
+      </g>
+      {nodes.map((n, i) => {
         const p = pos.get(n.id);
         if (!p) return null;
         const isSeed = aIds.has(n.id);
         const fill = isSeed ? "#94a3b8" : "#d4a94f";
-        const r = isSeed ? 7 : 5;
+        const r = isSeed ? 6.5 : 4.5;
         return (
-          <g key={n.id}>
+          <g key={n.id} className="node-in" style={{ animationDelay: Math.min(i * 22, 600) + "ms" }}>
             <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#080e1a" strokeWidth={1.5}>
               <title>{n.label}</title>
             </circle>
-            <text x={p.x} y={p.y + r + 11} textAnchor="middle" fontSize="9" fill="#94a3b8">
-              {truncate(n.label, 14)}
+            <text
+              x={p.x}
+              y={p.y + r + 10}
+              textAnchor="middle"
+              fontSize="9"
+              fill="#94a3b8"
+              className="font-mono"
+            >
+              {truncate(n.label, 16)}
             </text>
           </g>
         );
       })}
     </svg>
   );
+}
+
+// Presentation-only: the score counts up when it lands. Respects reduced motion.
+function useCountUp(target: number | null): number | null {
+  const [value, setValue] = useState<number | null>(target);
+  useEffect(() => {
+    if (target === null) { setValue(null); return; }
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { setValue(target); return; }
+    let raf = 0;
+    const start = performance.now();
+    const from = 0;
+    const dur = 520;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round((from + (target - from) * eased) * 10) / 10);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return value;
 }
 
 export default function Home() {
@@ -172,6 +227,8 @@ export default function Home() {
   const [freeText, setFreeText] = useState<boolean>(false);
   const [draft, setDraft] = useState<string>("");
   const controllerRef = useRef<AbortController | null>(null);
+  const scoreA = useCountUp(state.scoreA);
+  const scoreB = useCountUp(state.scoreB);
 
   function applyEvent(ev: StreamEvent) {
     setState((s) => {
@@ -258,160 +315,225 @@ export default function Home() {
     setFreeText(false);
   }
 
-  const scoreText =
-    state.scoreA !== null && state.scoreB !== null
-      ? state.scoreA + " → " + state.scoreB
-      : state.scoreA !== null
-        ? state.scoreA + " → …"
-        : "…";
+  const hasRun = state.scoreA !== null || state.scoreB !== null;
+  const gap =
+    state.scoreA !== null && state.scoreB !== null ? state.scoreB - state.scoreA : null;
 
   return (
-    <main data-scene={scene} className="min-h-screen text-ink flex flex-col items-center px-6 py-12">
-      <div className="w-full max-w-3xl">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">Deep Ultra 🦸</h1>
-          <p className="mt-2 text-mut">
-            Graph RAG retrieval · a self-scoring Gauntlet · a visible improvement, streamed live.
+    <main data-scene={scene} className="min-h-screen text-ink">
+      <div className="mx-auto w-full max-w-6xl px-6 pt-16 pb-10 md:px-10">
+
+        {/* ── Hero ─────────────────────────────────────────────── */}
+        <header className="mb-14 max-w-2xl">
+          <h1 className="font-serif text-[2.6rem] leading-[1.05] tracking-[-0.02em] md:text-[3.4rem]">
+            The same question,
+            <br />
+            answered twice.
+          </h1>
+          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-mut">
+            Keyword retrieval scores A. Graph retrieval scores B.{" "}
+            <span className="text-ink">The gap is the product.</span>
           </p>
         </header>
 
-        <div className="flex justify-center gap-2 mb-6">
-          {(Object.keys(SCENES) as Scene[]).map((s) => (
+        <div className="grid gap-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+
+          {/* ── Control rail ───────────────────────────────────── */}
+          <aside className="flex flex-col gap-1.5">
+            <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/60">Scene</div>
+            {(Object.keys(SCENES) as Scene[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => switchScene(s)}
+                disabled={state.running}
+                className={
+                  "border-l-2 py-1.5 pl-3 text-left text-[13px] transition-colors disabled:opacity-50 " +
+                  (scene === s
+                    ? "border-gold bg-gold/[0.06] text-ink"
+                    : "border-white/10 text-mut hover:border-white/25 hover:text-ink")
+                }
+              >
+                {SCENES[s].label}
+              </button>
+            ))}
+
+            <div className="mt-6 mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/60">Questions</div>
+            {SCENES[scene].queries.map((q) => (
+              <button
+                key={q.label}
+                onClick={() => run(q.text)}
+                disabled={state.running}
+                className={
+                  "border-l-2 py-1.5 pl-3 text-left text-[13px] transition-colors disabled:opacity-40 " +
+                  (query === q.text
+                    ? "border-gold-hi/70 text-gold-hi"
+                    : "border-white/10 text-mut hover:border-white/25 hover:text-ink")
+                }
+              >
+                {q.label}
+              </button>
+            ))}
             <button
-              key={s}
-              onClick={() => switchScene(s)}
+              onClick={() => setFreeText(!freeText)}
               disabled={state.running}
               className={
-                scene === s
-                  ? "px-4 py-2 rounded-full bg-gold text-navy-950 font-semibold"
-                  : "px-4 py-2 rounded-full border border-white/10 text-mut hover:border-gold-hi/50"
+                "mt-1 border-l-2 py-1.5 pl-3 text-left text-[13px] transition-colors disabled:opacity-40 " +
+                (freeText
+                  ? "border-gold-hi/70 text-gold-hi"
+                  : "border-white/10 text-mut hover:border-white/25 hover:text-ink")
               }
             >
-              {SCENES[s].label}
+              Something else
             </button>
-          ))}
-        </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-4">
-          {SCENES[scene].queries.map((q) => (
-            <button
-              key={q.label}
-              onClick={() => run(q.text)}
-              disabled={state.running}
-              className="px-3 py-1.5 rounded-full text-sm border border-white/10 text-mut hover:border-gold hover:text-gold-hi"
-            >
-              {q.label}
-            </button>
-          ))}
-          <button
-            onClick={() => setFreeText(!freeText)}
-            disabled={state.running}
-            className={
-              freeText
-                ? "px-3 py-1.5 rounded-full text-sm bg-gold text-navy-950 font-semibold"
-                : "px-3 py-1.5 rounded-full text-sm border border-white/10 text-mut hover:border-gold hover:text-gold-hi"
-            }
-          >
-            Something else
-          </button>
-        </div>
+            {freeText && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (draft.trim()) run(draft.trim());
+                }}
+                className="mt-3"
+              >
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={SCENES[scene].hint}
+                  autoFocus
+                  className="w-full border border-white/12 bg-transparent px-3 py-2 text-[13px] text-ink placeholder:text-mut/40 focus:border-gold focus:outline-none"
+                />
+              </form>
+            )}
 
-        {freeText && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (draft.trim()) run(draft.trim());
-            }}
-            className="mb-4"
-          >
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder={SCENES[scene].hint}
-              autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-navy-800/60 border border-white/10 text-ink placeholder-mut focus:outline-none focus:border-gold"
-            />
-          </form>
-        )}
-
-        <p className="text-center text-mut mb-1 italic">
-          {query ? "“" + query + "”" : "pick a question, or ask your own"}
-        </p>
-        <p className="text-center text-xs text-mut/60 mb-6">
-          {state.graphName ? "graph: " + state.graphName : "two curated graphs · one engine"}
-        </p>
-
-        {state.error && (
-          <div className="mb-6 rounded-xl border border-red-900/60 bg-red-950/40 p-4 text-sm text-red-300">{state.error}</div>
-        )}
-
-        <div className="mb-6 rounded-xl border border-white/10 bg-navy-800/50 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs uppercase tracking-wider text-gold-hi">Retrieval Graph</div>
-            <div className="flex items-center gap-3 text-[10px] text-mut">
-              <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#94a3b8] inline-block" /> matched (A)</span>
-              <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#d4a94f] inline-block" /> graph-reached (B)</span>
+            <div className="mt-6 font-mono text-[10px] leading-relaxed text-mut/40">
+              {state.running ? "streaming…" : state.graphName ? "graph: " + state.graphName : "two curated graphs · one engine"}
             </div>
-          </div>
-          <GraphPanel nodesA={state.nodesA} nodesB={state.nodesB} edges={state.edges} />
-        </div>
+          </aside>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Card title="Source">
-            {state.sourceA || state.sourceB ? (
-              <div className="space-y-2 text-xs text-mut font-mono break-words">
-                <div><span className="text-mut/60">A · keyword:</span> {state.sourceA || "…"}</div>
-                <div><span className="text-gold-hi">B · graph:</span> {state.sourceB || "…"}</div>
+          {/* ── Instrument ─────────────────────────────────────── */}
+          <section className="min-w-0">
+
+            {/* Prompt line */}
+            <div className="mb-6 flex min-h-[26px] items-baseline gap-3 border-b border-white/[0.07] pb-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">Q</span>
+              <p className={"font-serif text-[17px] leading-snug " + (query ? "text-ink" : "text-mut/50")}>
+                {query || "pick a question, or ask your own"}
+              </p>
+            </div>
+
+            {state.error && (
+              <div className="mb-6 border border-red-900/50 bg-red-950/30 px-4 py-3 font-mono text-[12px] text-red-300">
+                {state.error}
               </div>
-            ) : (
-              <Waiting />
             )}
-          </Card>
 
-          <Card title="Score">
-            {state.scoreB !== null ? (
-              <div>
-                <div className="text-3xl font-bold text-gold-hi">{scoreText}</div>
-                <div className="text-xs text-mut mt-1">out of 10 · the retry closes the gap</div>
+            {/* Graph band — full bleed, hairline */}
+            <div className="relative">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
+                  Retrieval graph
+                </span>
+                <span className="flex items-center gap-4 font-mono text-[10px] text-mut/60">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-[5px] w-[5px] rounded-full bg-[#94a3b8]" />
+                    matched · A
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block h-[5px] w-[5px] rounded-full bg-[#d4a94f]" />
+                    graph-reached · B
+                  </span>
+                </span>
               </div>
-            ) : (
-              <Waiting />
-            )}
-          </Card>
+              <div className="border-y border-white/[0.07] py-2">
+                <GraphPanel nodesA={state.nodesA} nodesB={state.nodesB} edges={state.edges} />
+              </div>
+            </div>
 
-          <Card title="Lesson">
-            {state.lesson ? <p className="text-sm text-ink/90">{state.lesson}</p> : <Waiting />}
-          </Card>
+            {/* Asymmetric verdict: answer 2fr · score + lesson 1fr */}
+            <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-10">
 
-          <Card title={scene === "revenue" ? "🧭 Opportunity Mapper" : "Answer"}>
-            {state.answer ? (
-              <div>
-                <p className="text-sm text-ink whitespace-pre-wrap">{state.answer}</p>
-                {scene === "revenue" && (
-                  <p className="text-xs text-gold-hi mt-3 pt-2 border-t border-white/10">
-                    chain → price band → next action · the same traversal that answers a question also finds the next sale
+              <div className="min-w-0">
+                <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
+                  {scene === "revenue" ? "Opportunity · answer" : "Answer"}
+                </div>
+                {state.answer ? (
+                  <p key={state.answer} className="reveal whitespace-pre-wrap text-[15px] leading-relaxed text-ink/85">
+                    {state.answer}
+                  </p>
+                ) : (
+                  <p className="font-mono text-[13px] text-mut/35">…</p>
+                )}
+
+                {(state.sourceA || state.sourceB) && (
+                  <div className="mt-6 space-y-2 border-t border-white/[0.07] pt-4 font-mono text-[11px] leading-relaxed break-words">
+                    <div className="text-mut/60">
+                      <span className="text-mut/40">A · keyword</span>{" "}
+                      <span className="text-mut/80">{state.sourceA || "—"}</span>
+                    </div>
+                    <div className="text-mut/60">
+                      <span className="text-gold-hi/70">B · graph</span>{" "}
+                      <span className="text-mut/80">{state.sourceB || "—"}</span>
+                    </div>
+                  </div>
+                )}
+
+                {scene === "revenue" && state.answer && (
+                  <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-gold-hi/60">
+                    chain → price band → next action
                   </p>
                 )}
               </div>
-            ) : (
-              <Waiting />
+
+              <div className="flex flex-col gap-7">
+                {/* Score — the hero object */}
+                <div>
+                  <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">Score</div>
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="font-mono text-[13px] text-mut/50">
+                      {scoreA !== null ? scoreA : "–"}
+                    </span>
+                    <span className="font-mono text-[13px] text-mut/30">→</span>
+                    <span className="font-serif text-[3.6rem] leading-none tracking-tight text-gold-hi">
+                      {scoreB !== null ? (Number.isInteger(scoreB) ? scoreB : scoreB.toFixed(1)) : "–"}
+                    </span>
+                  </div>
+                  <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-mut/45">
+                    out of 10 · deterministic rubric
+                  </div>
+                  {gap !== null && gap > 0 && (
+                    <div className="mt-2 font-mono text-[11px] text-gold-hi">
+                      +{gap} from the edges
+                    </div>
+                  )}
+                </div>
+
+                {/* Lesson */}
+                <div>
+                  <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">Lesson</div>
+                  {state.lesson ? (
+                    <p key={state.lesson} className="reveal-2 text-[13px] leading-relaxed text-mut">
+                      {state.lesson}
+                    </p>
+                  ) : (
+                    <p className="font-mono text-[13px] text-mut/35">…</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {!hasRun && !state.running && (
+              <p className="mt-10 border-t border-white/[0.07] pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-mut/35">
+                deterministic-first · renders with no key · the model is optional
+              </p>
             )}
-          </Card>
+          </section>
         </div>
+
+        {/* ── Footer mark ────────────────────────────────────────── */}
+        <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-mut/40">
+          <span>🦸 Deep Ultra · AI-Suplex Ultra</span>
+          <span>graph rag · self-scoring gauntlet</span>
+        </footer>
       </div>
     </main>
   );
-}
-
-function Card({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-navy-800/50 p-5 min-h-44">
-      <div className="text-xs uppercase tracking-wider text-gold-hi mb-3">{title}</div>
-      {children}
-    </div>
-  );
-}
-
-function Waiting() {
-  return <p className="text-sm text-mut/60">…</p>;
 }
