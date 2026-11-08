@@ -67,8 +67,10 @@ function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 
-// Deterministic radial layout: seeds at the centre, each BFS hop a ring.
-// No force simulation — the layout is a pure function of the retrieved sub-graph.
+// Deterministic radial layout: seeds on their own ring, each BFS hop a ring,
+// then a bounded collision-relaxation pass so labels stop stacking.
+// No force simulation and no randomness — the same evidence always draws the
+// same picture, which is the claim the panel above it makes.
 function radialLayout(
   nodes: VisNode[],
   edges: VisEdge[],
@@ -106,24 +108,57 @@ function radialLayout(
   const maxRing = Math.max(0, ...Array.from(rings.keys()));
   const cx = w / 2;
   const cy = h / 2;
-  const r0 = 30;
-  const avail = Math.min(w, h) / 2 - 26;
-  const spacing = maxRing > 0 ? (avail - r0) / maxRing : 0;
+  const pad = 52;
+  const avail = Math.min(w, h) / 2 - pad;
+
   const pos = new Map<string, { x: number; y: number }>();
   for (const [d, ids] of Array.from(rings.entries())) {
-    const r = maxRing === 0 ? 0 : r0 + spacing * d;
+    // Depth 0 is a ring, not a dot: five seeds on radius 30 is a pile, not a layout.
+    const r = maxRing === 0 ? 0 : (avail * (d + 0.62)) / (maxRing + 0.62);
     const n = ids.length;
+    // Stagger alternate rings so labels do not line up radially across rings.
+    const offset = -Math.PI / 2 + (d % 2) * (Math.PI / Math.max(n, 1));
     ids.forEach((id, i) => {
-      const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+      const angle = offset + (2 * Math.PI * i) / n;
       pos.set(id, { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
     });
+  }
+
+  // Collision relaxation: deterministic, bounded, and it only ever separates.
+  const MIN_GAP = 36;
+  const ids = nodes.map((n) => n.id).filter((id) => pos.has(id));
+  for (let pass = 0; pass < 80; pass++) {
+    let moved = false;
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const a = pos.get(ids[i])!;
+        const b = pos.get(ids[j])!;
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist === 0) { dx = 0.01; dy = 0.01; dist = Math.hypot(dx, dy); }
+        if (dist >= MIN_GAP) continue;
+        const push = (MIN_GAP - dist) / 2;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        a.x -= ux * push; a.y -= uy * push;
+        b.x += ux * push; b.y += uy * push;
+        moved = true;
+      }
+    }
+    for (const id of ids) {
+      const q = pos.get(id)!;
+      q.x = Math.max(pad, Math.min(w - pad, q.x));
+      q.y = Math.max(pad - 20, Math.min(h - pad + 20, q.y));
+    }
+    if (!moved) break;
   }
   return pos;
 }
 
 function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisNode[]; edges: VisEdge[] }) {
-  const w = 640;
-  const h = 380;
+  const w = 720;
+  const h = 480;
   if (nodesA.length === 0 && nodesB.length === 0) {
     return (
       <div className="flex h-[200px] flex-col items-center justify-center gap-3">
@@ -174,20 +209,20 @@ function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisN
         const isSeed = aIds.has(n.id);
         const fill = isSeed ? "#94a3b8" : "#d4a94f";
         const r = isSeed ? 6.5 : 4.5;
+        const lift = i % 2 === 1;
         return (
           <g key={n.id} className="node-in" style={{ animationDelay: Math.min(i * 22, 600) + "ms" }}>
-            <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#080e1a" strokeWidth={1.5}>
-              <title>{n.label}</title>
-            </circle>
+            <title>{n.label}</title>
+            <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#080e1a" strokeWidth={1.5} />
             <text
               x={p.x}
-              y={p.y + r + 10}
+              y={lift ? p.y - r - 7 : p.y + r + 12}
               textAnchor="middle"
-              fontSize="9"
-              fill="#94a3b8"
+              fontSize="9.5"
+              fill="#cbd5e1"
               className="font-mono"
             >
-              {truncate(n.label, 16)}
+              {truncate(n.label, 14)}
             </text>
           </g>
         );
