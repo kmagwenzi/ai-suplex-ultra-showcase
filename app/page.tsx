@@ -628,6 +628,9 @@ export default function Home() {
             <a href="https://ultra.ai-suplex.co.zw" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
               Get Ultra
             </a>
+            <a href="https://ai-suplex.co.zw/projects/ai-suplex-ultra.html" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
+              Project briefing
+            </a>
             <a href="https://github.com/kmagwenzi/ai-suplex" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
               777 on GitHub
             </a>
