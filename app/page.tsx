@@ -156,11 +156,18 @@ function radialLayout(
   return pos;
 }
 
-function GraphPanel({ nodesA, nodesB, edges }: { nodesA: VisNode[]; nodesB: VisNode[]; edges: VisEdge[] }) {
+function GraphPanel({ nodesA, nodesB, edges, running }: { nodesA: VisNode[]; nodesB: VisNode[]; edges: VisEdge[]; running: boolean }) {
   const w = 720;
   const h = 480;
   if (nodesA.length === 0 && nodesB.length === 0) {
-    return (
+    return running ? (
+      <div className="flex h-[200px] flex-col items-center justify-center gap-3">
+        <span className="spinner" aria-hidden="true" />
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-mut/40">
+          retrieving · evidence lights the graph
+        </span>
+      </div>
+    ) : (
       <div className="flex h-[200px] flex-col items-center justify-center gap-3">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-mut/40">
           run a question to light the graph
@@ -520,7 +527,7 @@ export default function Home() {
                 </span>
               </div>
               <div className="border-y border-white/[0.07] py-2">
-                <GraphPanel nodesA={state.nodesA} nodesB={state.nodesB} edges={state.edges} />
+                <GraphPanel nodesA={state.nodesA} nodesB={state.nodesB} edges={state.edges} running={state.running} />
               </div>
             </div>
 
@@ -534,6 +541,11 @@ export default function Home() {
                 {state.answer ? (
                   <p key={state.answer} className="reveal whitespace-pre-wrap text-[15px] leading-relaxed text-ink/85">
                     {state.answer}
+                  </p>
+                ) : state.running ? (
+                  <p className="flex items-center gap-2.5 font-mono text-[13px] text-mut/45">
+                    <span className="spinner shrink-0" aria-hidden="true" />
+                    resolving…
                   </p>
                 ) : (
                   <p className="font-mono text-[13px] text-mut/35">…</p>
