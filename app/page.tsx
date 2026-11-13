@@ -625,7 +625,7 @@ export default function Home() {
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-mut/40">
           <span>🦸 Deep Ultra · AI-Suplex Ultra</span>
           <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <a href="https://ai-suplex-ultra-preview.netlify.app" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
+            <a href="https://ultra.ai-suplex.co.zw" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
               Get Ultra
             </a>
             <a href="https://github.com/kmagwenzi/ai-suplex" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
