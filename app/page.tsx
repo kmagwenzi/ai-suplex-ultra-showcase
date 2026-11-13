@@ -362,15 +362,55 @@ export default function Home() {
         {/* ── Hero ─────────────────────────────────────────────── */}
         <header className="mb-14 max-w-2xl">
           <h1 className="font-serif text-[2.6rem] leading-[1.05] tracking-[-0.02em] md:text-[3.4rem]">
-            The same question,
+            Ultra reasons over the
             <br />
-            answered twice.
+            records 777 captures.
           </h1>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-mut">
-            Keyword retrieval scores A. Graph retrieval scores B.{" "}
+            One question, answered twice — keyword retrieval scores A, graph retrieval scores B.{" "}
             <span className="text-ink">The gap is the product.</span>
           </p>
         </header>
+
+        {/* ── What is this — three bands, above the fold ────────── */}
+        <div className="mb-14 grid grid-cols-1 divide-y divide-white/[0.07] border-y border-white/[0.07] py-2 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="py-6 sm:py-7 sm:pr-8">
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
+              Reflects on 777
+            </div>
+            <p className="mt-3 text-[14px] leading-relaxed text-mut">
+              777 records what happened;{" "}
+              <span className="text-ink">Ultra reasons over it.</span>
+            </p>
+            <svg viewBox="0 0 148 28" className="mt-4 h-7 w-auto" aria-hidden="true">
+              <line x1="33" y1="14" x2="105" y2="14" stroke="#b8862e" strokeWidth="1.1" strokeDasharray="3 3" />
+              <path d="M112 14 L106 11.2 L106 16.8 Z" fill="#b8862e" />
+              <circle cx="20" cy="14" r="9.5" fill="none" stroke="#94a3b8" strokeWidth="1.1" />
+              <text x="20" y="16.5" textAnchor="middle" fontSize="6.5" fill="#94a3b8" className="font-mono">777</text>
+              <circle cx="125" cy="14" r="10.5" fill="rgba(212,169,79,0.12)" stroke="#d4a94f" strokeWidth="1.1" />
+              <text x="125" y="16.5" textAnchor="middle" fontSize="5.5" fill="#d4a94f" className="font-mono">ULTRA</text>
+            </svg>
+          </div>
+          <div className="py-6 sm:py-7 sm:px-8">
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
+              Knowledge Graph
+            </div>
+            <p className="mt-3 text-[14px] leading-relaxed text-mut">
+              Query your vault&rsquo;s records and activity — the graph is{" "}
+              <span className="text-ink">the retrieval, visible as it resolves.</span>
+            </p>
+          </div>
+          <div className="py-6 sm:py-7 sm:pl-8">
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
+              Opportunity Mapper
+            </div>
+            <p className="mt-3 text-[14px] leading-relaxed text-mut">
+              Analyses your vault to surface{" "}
+              <span className="text-ink">up-sells, cross-sells and overlooked opportunities</span>{" "}
+              already sitting there.
+            </p>
+          </div>
+        </div>
 
         <div className="grid gap-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
 
@@ -489,7 +529,7 @@ export default function Home() {
 
               <div className="min-w-0">
                 <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-mut/50">
-                  {scene === "revenue" ? "Opportunity · answer" : "Answer"}
+                  {scene === "revenue" ? "Opportunity Mapper" : "Answer"}
                 </div>
                 {state.answer ? (
                   <p key={state.answer} className="reveal whitespace-pre-wrap text-[15px] leading-relaxed text-ink/85">
@@ -572,7 +612,18 @@ export default function Home() {
         {/* ── Footer mark ────────────────────────────────────────── */}
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-mut/40">
           <span>🦸 Deep Ultra · AI-Suplex Ultra</span>
-          <span>graph rag · self-scoring gauntlet</span>
+          <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a href="https://ai-suplex-ultra-preview.netlify.app" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
+              Get Ultra
+            </a>
+            <a href="https://github.com/kmagwenzi/ai-suplex" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
+              777 on GitHub
+            </a>
+            <a href="https://selar.com/270lq55ke0" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
+              Buy on Selar
+            </a>
+            <span>graph rag · self-scoring gauntlet</span>
+          </span>
         </footer>
       </div>
     </main>

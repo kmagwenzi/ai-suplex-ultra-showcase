@@ -17,3 +17,6 @@ next-env.d.ts
 npm-debug.log*
 
 *.tsbuildinfo
+
+# local evidence shots
+/_shots/
