@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const SCENES = {
   "knowledge-base": {
-    label: "Knowledge Base",
+    label: "Knowledge Graph",
     queries: [
       { label: "7-7-7 rhythm", text: "What is the 7-7-7 rhythm and how is it applied in AI-Suplex?" },
       { label: "What is WQR?", text: "What is WQR, and what powers it?" },
@@ -13,7 +13,7 @@ const SCENES = {
     hint: "try “how does the memory compound?”",
   },
   revenue: {
-    label: "Revenue",
+    label: "Opportunity Mapper",
     queries: [
       { label: "Who buys again?", text: "Which of my clients is most likely to buy again, and what exactly should I pitch?" },
       { label: "Who went quiet?", text: "Which client has gone quiet, and what is the follow-up?" },
@@ -369,7 +369,7 @@ export default function Home() {
         {/* ── Hero ─────────────────────────────────────────────── */}
         <header className="mb-14 max-w-2xl">
           <h1 className="font-serif text-[2.6rem] leading-[1.05] tracking-[-0.02em] md:text-[3.4rem]">
-            Ultra reasons over the
+            AI-Suplex Ultra reasons over the
             <br />
             records 777 captures.
           </h1>
