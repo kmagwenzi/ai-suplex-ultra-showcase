@@ -5,17 +5,17 @@
       "id": "ai-suplex-777",
       "type": "product",
       "label": "AI-Suplex 777",
-      "desc": "The free open-source library — tasklists, sessions, file-first memory, and the 3-layer memory stack.",
-      "status": "open-source (free)",
+      "desc": "The free, open-source foundation — portable workspaces, tasklists, sessions and the 3-layer memory stack. Give your AI agents a memory that survives the chat.",
+      "status": "open-source · free · v2.10.0",
       "link": "github.com/kmagwenzi/ai-suplex"
     },
     {
       "id": "ultra-harness",
       "type": "product",
-      "label": "AI-Suplex Ultra (Deep Ultra)",
-      "desc": "The paid harness on top of 777 — Gauntlet gamification, the LLM Wiki, and Graph RAG intelligence.",
-      "status": "premium tier",
-      "link": "ai-suplex-ultra-preview.netlify.app"
+      "label": "AI-Suplex Ultra",
+      "desc": "The intelligence layer on top of 777 — reads the work you already captured and surfaces the opportunities, risks and priorities that matter most. The MVP carries six surfaces: Opportunity Mapper, Knowledge Graph and Deep Ultra Mode ship today; Skills Evolution, Insight Resonance and AS Mission Control complete the set.",
+      "status": "paid · $50 · ships 28 Nov 2026",
+      "link": "ultra.ai-suplex.co.zw"
     },
     {
       "id": "wqr",
@@ -37,11 +37,25 @@
       "link": "wqr.co.zw"
     },
     {
+      "id": "workflow-console",
+      "type": "product",
+      "label": "Workflow Console",
+      "desc": "A local-first app that operates the vault — create workspaces from a form, see Today's pipeline, and compose the 23 AI-Suplex commands. The console composes and validates; the vault writes. Ships as a desktop app for macOS, Windows and Linux: download, run, no Node install.",
+      "status": "shipped · v0.1.1",
+      "stack": [
+        "Next.js",
+        "Node.js",
+        "Electron",
+        "MCP v1"
+      ],
+      "link": "ai-suplex.co.zw/projects/workflow-console-download.html"
+    },
+    {
       "id": "agents-terminal",
       "type": "product",
       "label": "Agents Terminal V3",
       "desc": "A multi-agent orchestration platform — runs specialised sub-agents as Docker services, with an orchestrator that reviews every interaction and proposes weekly upgrades, human in the loop.",
-      "status": "built · AMD Hackathon ACT II (Unicorn Track)",
+      "status": "open source",
       "stack": [
         "DeepSeek",
         "n8n",
@@ -55,25 +69,53 @@
       "id": "graph-rag",
       "type": "module",
       "label": "Graph RAG",
-      "desc": "Structured retrieval over the knowledge graph — the technical moat and an Ultra pillar."
+      "desc": "Structured retrieval over the knowledge graph — the Knowledge Graph surface of the Ultra MVP, shipped. One question answered twice: keyword retrieval scores A, graph retrieval follows the edges for B — the gap is the product."
     },
     {
       "id": "gauntlet",
       "type": "module",
-      "label": "Gauntlet",
-      "desc": "The scored boss-rush evaluation loop — the gamification pillar."
+      "label": "Deep Ultra Mode",
+      "desc": "The boss-rush execution mode — one mechanic, three voices (arcade, operative, pro), the FINAL BOSS constant. Turns a tasklist into a mission; a shipped Ultra MVP surface."
     },
     {
       "id": "llm-wiki",
       "type": "module",
-      "label": "LLM Wiki",
-      "desc": "A Karpathy-style auto-wiki that structures your work into a browsable knowledge base — the content pillar."
+      "label": "Living Wiki",
+      "desc": "Auto-structures captured work into a browsable knowledge base — memory made usable, not another graph database."
+    },
+    {
+      "id": "opportunity-mapper",
+      "type": "module",
+      "label": "Opportunity Mapper",
+      "desc": "Reads the outreach, completed work and follow-ups already in your vault and surfaces the up-sells, cross-sells and overlooked opportunities sitting there — never inventing revenue or prices. A shipped Ultra MVP surface.",
+      "status": "shipped · Ultra MVP"
+    },
+    {
+      "id": "skills-evolution",
+      "type": "module",
+      "label": "Skills Evolution",
+      "desc": "The skill layer that compounds — what worked, what faded, and what gets promoted next, gated by human approval.",
+      "status": "in development · Ultra MVP"
+    },
+    {
+      "id": "insight-resonance",
+      "type": "module",
+      "label": "Insight Resonance",
+      "desc": "Resonance scoring across your captured insights — a deterministic floor first, optional AI enrichment clearly separated.",
+      "status": "in development · Ultra MVP"
+    },
+    {
+      "id": "as-mc",
+      "type": "module",
+      "label": "AS Mission Control",
+      "desc": "The system that keeps the loop running — schedules, rituals and the operating rhythm that makes the work compound.",
+      "status": "in development · Ultra MVP"
     },
     {
       "id": "3lm-memory",
       "type": "module",
       "label": "3lm Memory",
-      "desc": "The 3-layer memory stack and the compound loop (end → learn → promote → index)."
+      "desc": "The 3-layer memory stack — episodic, semantic, procedural — and the compound loop (end → learn → promote → index). Every new session starts smarter than the last."
     },
     {
       "id": "outreach-entity",
@@ -91,7 +133,7 @@
       "id": "knowledge-graph",
       "type": "tool",
       "label": "knowledge-graph.js",
-      "desc": "SQLite graph CLI — query, hubs, path tracing."
+      "desc": "SQLite graph CLI — query, hubs, path tracing. 1,642 entities and 4,865 edges on the build vault."
     },
     {
       "id": "vault-index",
@@ -205,7 +247,7 @@
       "id": "revenue",
       "type": "goal",
       "label": "First Revenue",
-      "desc": "The Cycle 2 north star — zero to first dollar."
+      "desc": "The current north star — turn the shipped product range into the first banked dollar."
     },
     {
       "id": "777-rhythm",
@@ -252,6 +294,26 @@
     },
     {
       "from": "gauntlet",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "opportunity-mapper",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "skills-evolution",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "insight-resonance",
+      "to": "ultra-harness",
+      "rel": "powers"
+    },
+    {
+      "from": "as-mc",
       "to": "ultra-harness",
       "rel": "powers"
     },
@@ -316,6 +378,11 @@
       "rel": "feeds"
     },
     {
+      "from": "skills",
+      "to": "skills-evolution",
+      "rel": "feeds"
+    },
+    {
       "from": "prompt-patterns",
       "to": "tasklist",
       "rel": "feeds"
@@ -331,8 +398,18 @@
       "rel": "feeds"
     },
     {
+      "from": "opportunity-mapper",
+      "to": "revenue",
+      "rel": "feeds"
+    },
+    {
       "from": "insights",
       "to": "graph-rag",
+      "rel": "feeds"
+    },
+    {
+      "from": "insights",
+      "to": "insight-resonance",
       "rel": "feeds"
     },
     {
@@ -349,6 +426,16 @@
       "from": "ultra-harness",
       "to": "ai-suplex-777",
       "rel": "built_on"
+    },
+    {
+      "from": "workflow-console",
+      "to": "ai-suplex-777",
+      "rel": "built_on"
+    },
+    {
+      "from": "workflow-console",
+      "to": "vault",
+      "rel": "operates"
     },
     {
       "from": "wqr",
@@ -442,6 +529,11 @@
     },
     {
       "from": "session-loop",
+      "to": "777-rhythm",
+      "rel": "applies"
+    },
+    {
+      "from": "as-mc",
       "to": "777-rhythm",
       "rel": "applies"
     },
