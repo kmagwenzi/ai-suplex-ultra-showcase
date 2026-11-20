@@ -374,8 +374,8 @@ export default function Home() {
             records 777 captures.
           </h1>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-mut">
-            One question, answered twice — keyword retrieval scores A, graph retrieval scores B.{" "}
-            <span className="text-ink">The gap is the product.</span>
+            AI-Suplex Ultra is the intelligence layer for your vault — it reads what 777 records and reasons over it: what connects, what matters, and what to do next.{" "}
+            <span className="text-ink">From $50.</span>
           </p>
         </header>
 
