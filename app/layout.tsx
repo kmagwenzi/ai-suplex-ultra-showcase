@@ -19,7 +19,7 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "AI-Suplex Ultra — the same question, answered twice",
   description:
-    "Keyword retrieval scores A. Graph retrieval scores B. Both scored live against a deterministic rubric.",
+    "AI-Suplex Ultra reads the records your vault already captures and reasons over them. Keyword retrieval scores A, graph retrieval scores B, both judged live by a deterministic rubric. Ships 28 November 2026, from $50.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

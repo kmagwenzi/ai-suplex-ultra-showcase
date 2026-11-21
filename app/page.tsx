@@ -377,6 +377,19 @@ export default function Home() {
             AI-Suplex Ultra is the intelligence layer for your vault. It reads what 777 records and reasons over it, so you can see what connects and what matters, then choose what to do next.{" "}
             <span className="text-ink">From $50.</span>
           </p>
+
+          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.16em]">
+            <span className="text-gold-hi/80">Ships 28 November 2026</span>
+            <span className="text-mut/25" aria-hidden="true">·</span>
+            <a
+              href="https://ultra.ai-suplex.co.zw#waitlist"
+              target="_blank"
+              rel="noreferrer"
+              className="text-mut/75 underline decoration-white/25 underline-offset-4 transition-colors hover:text-gold-hi hover:decoration-gold-hi/50"
+            >
+              Join the waitlist →
+            </a>
+          </div>
         </header>
 
         {/* ── What is this — three bands, above the fold ────────── */}
@@ -625,6 +638,9 @@ export default function Home() {
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-mut/40">
           <span>🦸 Deep Ultra · AI-Suplex Ultra</span>
           <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a href="https://ultra.ai-suplex.co.zw#waitlist" target="_blank" rel="noreferrer" className="text-gold-hi/80 transition-colors hover:text-gold-hi">
+              Join the waitlist
+            </a>
             <a href="https://ultra.ai-suplex.co.zw" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
               Get Ultra
             </a>
@@ -637,7 +653,7 @@ export default function Home() {
             <a href="https://selar.com/270lq55ke0" target="_blank" rel="noreferrer" className="transition-colors hover:text-gold-hi">
               Buy on Selar
             </a>
-            <span>graph rag · self-scoring gauntlet</span>
+            <span>ships 28 november 2026 · graph rag · self-scoring gauntlet</span>
           </span>
         </footer>
       </div>
