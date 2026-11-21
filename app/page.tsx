@@ -380,7 +380,7 @@ export default function Home() {
 
           <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.16em]">
             <span className="text-gold-hi/80">Ships 28 November 2026</span>
-            <span className="text-mut/25" aria-hidden="true">·</span>
+            <span className="hidden text-mut/25 sm:inline" aria-hidden="true">·</span>
             <a
               href="https://ultra.ai-suplex.co.zw#waitlist"
               target="_blank"
